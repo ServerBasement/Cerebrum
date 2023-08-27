@@ -1,0 +1,32 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
+
+plugins {
+    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("application")
+}
+
+dependencies {
+    implementation project(':common:loader-utils')
+    implementation project(':standalone:app')
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+application {
+    mainClass = 'it.ohalee.cerebrum.loader.CerebrumLoader'
+}
+
+shadowJar {
+    archiveFileName = "Cerebrum-${project.ext.fullVersion}.jar"
+
+    from {
+        project(':standalone').tasks.shadowJar.archiveFile
+    }
+
+    transform(Log4j2PluginsCacheFileTransformer)
+}
+
+artifacts {
+    archives shadowJar
+}

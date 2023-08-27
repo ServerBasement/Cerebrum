@@ -1,1 +1,9 @@
 rootProject.name = 'Cerebrum'
+include (
+        'common',
+        'common:loader-utils',
+        'standalone',
+        'standalone:app',
+        'standalone:loader'
+)
+
