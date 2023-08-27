@@ -1,0 +1,75 @@
+leader: true
+
+server:
+  leader:
+    velocity:
+      server: "./velocity/"
+      logs: "./velocity/logs/"
+      image: "minecraft:17-alpine"
+      net: "mc-net"
+      ipv4: "172.10.0.1"
+      ports:
+        - "25565" # java
+        - "udp:19132" # bedrock
+      startup: true
+
+    auth:
+      server: "./primary/auth/"
+      logs: "./primary/auth/logs/"
+      image: "minecraft:17-alpine"
+      net: "mc-net"
+      startup: true
+
+    oneblock:
+      server: "./oneblock/"
+      logs: "./oneblock/logs/"
+      image: "minecraft:17-alpine"
+      net: "mc-net"
+      startup: true
+
+hub:
+  leader:
+    1:
+      server: "./primary/hub_1/"
+      logs: "./primary/hub_logs/hub_1/"
+      image: "minecraft:17-alpine"
+      net: "mc-net"
+      world: "world_1"
+      startup: true
+    2:
+      server: "./primary/hub_1/"
+      logs: "./primary/hub_logs/hub_2/"
+      image: "minecraft:17-alpine"
+      net: "mc-net"
+      world: "world_2"
+      startup: false
+
+bedwars:
+  leader:
+    lobby_1:
+      server: "./bedwars/lobby_1/"
+      logs: "./bedwars/lobby_logs/lobby_1/"
+      image: "minecraft:17-alpine"
+      net: "mc-net"
+      world: "world_1"
+      startup: true
+    lobby_2:
+      server: "./bedwars/lobby_1/"
+      logs: "./bedwars/lobby_logs/lobby_2/"
+      image: "minecraft:17-alpine"
+      net: "mc-net"
+      world: "world_2"
+      startup: true
+    lobby_3:
+      server: "./bedwars/lobby_1/"
+      logs: "./bedwars/lobby_logs/lobby_3/"
+      image: "minecraft:17-alpine"
+      net: "mc-net"
+      world: "world_3"
+      startup: false
+  worker:
+    instance:
+      server: "./bedwars/game/"
+      logs: "./bedwars/instance_logs/{name}"
+      image: "minecraft:17-alpine"
+      net: "mc-net"
