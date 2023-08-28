@@ -10,6 +10,7 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Ports;
 import it.ohalee.basementlib.api.config.generic.adapter.ConfigurationAdapter;
 import it.ohalee.basementlib.api.redis.messages.implementation.ServerShutdownMessage;
+import it.ohalee.cerebrum.standalone.config.CerebrumConfigurationNode;
 import it.ohalee.cerebrum.standalone.docker.DockerService;
 import it.ohalee.cerebrum.standalone.Logger;
 import it.ohalee.cerebrum.standalone.basement.BasementLoader;
@@ -33,13 +34,12 @@ public class ServerContainer {
     private List<ExposedPort> exposedPorts = new ArrayList<>();
     private boolean running = false;
     private boolean loaded;
-    private ConfigurationAdapter containerSection;
+    private CerebrumConfigurationNode containerSection;
     private HostConfig hostConfig;
     private String worldDirectory;
     private String ipv4;
 
-    public void setContainerSection(ConfigurationAdapter containerSection) {
-
+    public void setContainerSection(CerebrumConfigurationNode containerSection) {
         this.containerSection = containerSection;
 
         File logsFolder = new File(containerSection.getString("logs", null).replace("{name}", name));

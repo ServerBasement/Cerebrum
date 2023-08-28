@@ -1,4 +1,5 @@
 plugins {
+    id 'org.springframework.boot' version '3.1.3'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
@@ -29,13 +30,18 @@ dependencies {
     compileOnly 'com.github.docker-java:docker-java-transport-httpclient5:3.3.3'
 }
 
+bootJar {
+    manifest {
+        attributes 'Start-Class': 'it.ohalee.cerebrum.standalone.CerebrumApplication'
+    }
+}
+
 shadowJar {
     archiveFileName = 'cerebrum-standalone.jarinjar'
 
     dependencies {
         //    include(dependency('it.ohalee.basementlib:.*'))
     }
-
 }
 
 artifacts {

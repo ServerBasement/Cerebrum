@@ -1,23 +1,26 @@
 package it.ohalee.cerebrum.standalone.docker.rancher;
 
-import it.ohalee.basementlib.api.config.generic.adapter.ConfigurationAdapter;
 import it.ohalee.cerebrum.standalone.config.CerebrumConfigAdapter;
 import it.ohalee.cerebrum.standalone.Logger;
+import it.ohalee.cerebrum.standalone.config.CerebrumConfigurationNode;
 import it.ohalee.cerebrum.standalone.docker.container.ServerContainer;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
 public class Ranch {
 
     @Getter
     private final String name;
     private final Map<String, ServerContainer> servers = new ConcurrentHashMap<>();
-    private CerebrumConfigAdapter ranchSection;
+    private CerebrumConfigurationNode ranchSection;
+
+    public Ranch(String name, CerebrumConfigurationNode node) {
+        this.name = name;
+        this.ranchSection = node;
+    }
 
     public Collection<ServerContainer> getServers() {
         return Collections.unmodifiableCollection(servers.values());
@@ -27,7 +30,7 @@ public class Ranch {
         return registerContainer(name, workerName, type, ranchSection.section("worker." + workerName), running, loaded);
     }
 
-    private ServerContainer registerContainer(String name, String registeredName, ServerContainer.Type type, ConfigurationAdapter section, boolean running, boolean loaded) {
+    private ServerContainer registerContainer(String name, String registeredName, ServerContainer.Type type, CerebrumConfigurationNode section, boolean running, boolean loaded) {
         ServerContainer newServerContainer = new ServerContainer(name, registeredName, type);
         newServerContainer.setContainerSection(section);
         newServerContainer.setRunning(running);
@@ -74,7 +77,7 @@ public class Ranch {
         return new HashSet<>(ranchSection.section("worker").getKeys());
     }
 
-    public void recalculateConfiguration(CerebrumConfigAdapter configuration) {
+    public void recalculateConfiguration(CerebrumConfigurationNode configuration) {
         this.ranchSection = configuration;
         for (ServerContainer server : servers.values()) {
             server.setContainerSection(ranchSection.section(server.getType().toString().toLowerCase() + "." + server.getRegisteredName()));

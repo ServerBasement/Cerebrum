@@ -28,6 +28,8 @@ package it.ohalee.cerebrum.common.loader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -133,6 +135,28 @@ public class JarInJarClassLoader extends URLClassLoader {
         }
     }
 
+    public void runMain(String bootstrapClass, String[] args) throws LoadingException {
+        Class<?> clazz;
+        try {
+            clazz = loadClass(bootstrapClass);
+        } catch (ReflectiveOperationException e) {
+            throw new LoadingException("Unable to load bootstrap class", e);
+        }
+
+        Method method;
+        try {
+            method = clazz.getMethod("main", String[].class);
+        } catch (NoSuchMethodException e) {
+            throw new LoadingException("Unable to get bootstrap main method", e);
+        }
+
+        try {
+            method.invoke(null, (Object) args);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new LoadingException("Unable to invoke bootstrap main method", e);
+        }
+    }
+
     /**
      * Extracts the "jar-in-jar" from the loader plugin into a temporary file,
      * then returns a URL that can be used by the {@link JarInJarClassLoader}.
@@ -152,7 +176,7 @@ public class JarInJarClassLoader extends URLClassLoader {
         // on posix systems by default this is only read/writable by the process owner
         Path path;
         try {
-            path = Files.createTempFile("luckperms-jarinjar", ".jar.tmp");
+            path = Files.createTempFile("cerebrum-jarinjar", ".jar.tmp");
         } catch (IOException e) {
             throw new LoadingException("Unable to create a temporary file", e);
         }

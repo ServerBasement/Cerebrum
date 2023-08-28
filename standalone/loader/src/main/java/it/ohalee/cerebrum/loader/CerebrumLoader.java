@@ -5,7 +5,7 @@ import it.ohalee.cerebrum.common.loader.LoaderBootstrap;
 
 public class CerebrumLoader {
     private static final String JAR_NAME = "cerebrum-standalone.jarinjar";
-    private static final String BOOTSTRAP_PLUGIN_CLASS = "it.ohalee.cerebrum.standalone.CerebrumApplication";
+    private static final String BOOTSTRAP_PLUGIN_CLASS = "BOOT-INF.classes.it.ohalee.cerebrum.standalone.CerebrumApplication";
 
     private JarInJarClassLoader loader;
     private LoaderBootstrap plugin;

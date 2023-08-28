@@ -3,8 +3,8 @@ leader: true
 server:
   leader:
     velocity:
-      server: "./velocity/"
-      logs: "./velocity/logs/"
+      server: "./server/velocity/"
+      logs: "./server/velocity/logs/"
       image: "minecraft:17-alpine"
       net: "mc-net"
       ipv4: "172.10.0.1"
@@ -14,15 +14,15 @@ server:
       startup: true
 
     auth:
-      server: "./primary/auth/"
-      logs: "./primary/auth/logs/"
+      server: "./server/primary/auth/"
+      logs: "./server/primary/auth/logs/"
       image: "minecraft:17-alpine"
       net: "mc-net"
       startup: true
 
     oneblock:
-      server: "./oneblock/"
-      logs: "./oneblock/logs/"
+      server: "./server/oneblock/"
+      logs: "./server/oneblock/logs/"
       image: "minecraft:17-alpine"
       net: "mc-net"
       startup: true
@@ -30,15 +30,15 @@ server:
 hub:
   leader:
     1:
-      server: "./primary/hub_1/"
-      logs: "./primary/hub_logs/hub_1/"
+      server: "./server/primary/hub_1/"
+      logs: "./server/primary/hub_logs/hub_1/"
       image: "minecraft:17-alpine"
       net: "mc-net"
       world: "world_1"
       startup: true
     2:
-      server: "./primary/hub_1/"
-      logs: "./primary/hub_logs/hub_2/"
+      server: "./server/primary/hub_1/"
+      logs: "./server/primary/hub_logs/hub_2/"
       image: "minecraft:17-alpine"
       net: "mc-net"
       world: "world_2"
@@ -47,29 +47,29 @@ hub:
 bedwars:
   leader:
     lobby_1:
-      server: "./bedwars/lobby_1/"
-      logs: "./bedwars/lobby_logs/lobby_1/"
+      server: "./server/bedwars/lobby_1/"
+      logs: "./server/bedwars/lobby_logs/lobby_1/"
       image: "minecraft:17-alpine"
       net: "mc-net"
       world: "world_1"
       startup: true
     lobby_2:
-      server: "./bedwars/lobby_1/"
-      logs: "./bedwars/lobby_logs/lobby_2/"
+      server: "./server/bedwars/lobby_1/"
+      logs: "./server/bedwars/lobby_logs/lobby_2/"
       image: "minecraft:17-alpine"
       net: "mc-net"
       world: "world_2"
       startup: true
     lobby_3:
-      server: "./bedwars/lobby_1/"
-      logs: "./bedwars/lobby_logs/lobby_3/"
+      server: "./server/bedwars/lobby_1/"
+      logs: "./server/bedwars/lobby_logs/lobby_3/"
       image: "minecraft:17-alpine"
       net: "mc-net"
       world: "world_3"
       startup: false
   worker:
     instance:
-      server: "./bedwars/game/"
-      logs: "./bedwars/instance_logs/{name}"
+      server: "./server/bedwars/game/"
+      logs: "./server/bedwars/instance_logs/{name}"
       image: "minecraft:17-alpine"
       net: "mc-net"

@@ -35,8 +35,8 @@ public class CerebrumConfigAdapter extends ConfigurateConfigAdapter implements C
     }
 
     @Override
-    public CerebrumConfigAdapter section(String path) {
-        return (CerebrumConfigAdapter) super.resolvePath(path);
+    public CerebrumConfigurationNode section(String path) {
+        return CerebrumConfigurationNode.of(super.resolvePath(path));
     }
 
 }

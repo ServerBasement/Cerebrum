@@ -1,6 +1,7 @@
 package it.ohalee.cerebrum.standalone.docker;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.ListContainersCmd;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -90,17 +91,19 @@ public class DockerService {
     }
 
     public void findRanches() {
-        List<Container> allContainers = DockerService.getClient().listContainersCmd().exec();
-        for (String ranchName : settings.getKeys()) {
-            Ranch newRanch = new Ranch(ranchName, settings.section(ranchName));
-            ranches.put(ranchName, newRanch);
-            executor.submit(() -> {
-                newRanch.findContainers(
-                        allContainers.stream()
-                                .filter(container -> container.getNames().length > 0 && container.getNames()[0].substring(1).startsWith(ranchName))
-                                .collect(Collectors.toList()));
-                newRanch.registerLeaders();
-            });
+        try (ListContainersCmd cmd = DockerService.getClient().listContainersCmd()) {
+            List<Container> allContainers = cmd.exec();
+            for (String ranchName : settings.getKeys()) {
+                Ranch newRanch = new Ranch(ranchName, settings.section(ranchName));
+                ranches.put(ranchName, newRanch);
+                executor.submit(() -> {
+                    newRanch.findContainers(
+                            allContainers.stream()
+                                    .filter(container -> container.getNames().length > 0 && container.getNames()[0].substring(1).startsWith(ranchName))
+                                    .collect(Collectors.toList()));
+                    newRanch.registerLeaders();
+                });
+            }
         }
     }
 

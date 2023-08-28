@@ -4,19 +4,4 @@ BasementX-Velocity:
 BasementX-Bukkit:
   - "server.leader.auth"
   - "hub.leader.1"
-  - "bedwars.leader.lobby_1"
-  - "bridge.leader.lobby_1"
-  - "ctk.leader.lobby_1"
-  - "bedwars.worker.instance"
-  - "bridge.worker.instance"
-  - "ctk.worker.instance"
-  - "server.leader.screenshare"
-  - "server.leader.civilization"
-  - "oneblock.leader.lobby_1"
-  - "oneblock.worker.server"
-
-Bridge_Master:
-  - "bridge.leader.lobby_1"
-
-Bridge_Instance:
-  - "bridge.worker.instance"
+  - "hub.leader.2"
