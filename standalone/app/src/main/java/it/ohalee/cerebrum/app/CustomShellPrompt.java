@@ -1,4 +1,4 @@
-package it.ohalee.cerebrum.standalone;
+package it.ohalee.cerebrum.app;
 
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;

@@ -1,12 +1,43 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version "7.0.0"
+    id 'org.springframework.boot' version '3.1.3'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'java'
     id 'java-library'
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
+configurations {
+    configureEach {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude group: 'org.springframework.shell', module: 'spring-shell-standard-commands'
+    }
+}
+
 dependencies {
-    api 'org.apache.logging.log4j:log4j-core:2.17.2'
-    api 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.2'
+    api 'org.apache.logging.log4j:log4j-core:2.20.0'
+    api 'org.apache.logging.log4j:log4j-slf4j-impl:2.20.0'
+
+    api 'org.springframework.boot:spring-boot-starter:3.1.3'
+    api 'org.springframework.boot:spring-boot-starter-log4j2:3.1.3'
+    api 'org.springframework.shell:spring-shell-starter-jna:3.1.3'
+
+    implementation project(':common:loader-utils')
+}
+
+bootJar {
+    manifest {
+        attributes 'Start-Class': 'it.ohalee.cerebrum.app.CerebrumApplication'
+    }
+    archiveFileName = "Cerebrum-${project.ext.fullVersion}.jar"
+
+    from {
+        project(':standalone').tasks.shadowJar.archiveFile
+    }
+}
+
+artifacts {
+    archives bootJar
 }

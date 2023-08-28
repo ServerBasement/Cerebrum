@@ -32,7 +32,7 @@ public interface LoaderBootstrap {
 
     void onLoad();
 
-    default void onEnable(String[] args) {}
+    default void onEnable() {}
 
     default void onDisable() {}
 

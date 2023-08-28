@@ -12,7 +12,7 @@ import it.ohalee.basementlib.api.redis.RedisManager;
 import it.ohalee.basementlib.api.redis.messages.implementation.VelocityNotifyMessage;
 import it.ohalee.basementlib.api.remote.RemoteCerebrumService;
 import it.ohalee.cerebrum.standalone.config.CerebrumConfigAdapter;
-import it.ohalee.cerebrum.standalone.Logger;
+import it.ohalee.cerebrum.app.Logger;
 import it.ohalee.cerebrum.standalone.basement.BasementLoader;
 import it.ohalee.cerebrum.standalone.basement.redis.handlers.StartServerHandler;
 import it.ohalee.cerebrum.standalone.basement.redis.handlers.VelocityNotifyHandler;
@@ -117,17 +117,17 @@ public class DockerService {
         String qualifiedName = ranchName + "_" + serverName;
         for (String worker : ranch.getWorkers()) {
             if (qualifiedName.startsWith(ranch.getName() + "_" + worker)) {
-                Logger.getInstance().info("Starting worker container " + ranch.getName() + "_" + serverName + "...");
+                Logger.info("Starting worker container " + ranch.getName() + "_" + serverName + "...");
                 ranch.registerWorker(qualifiedName, worker, ServerContainer.Type.WORKER, false, false).start();
                 return;
             }
         }
         Optional<ServerContainer> container = ranch.getServer(serverName);
         if (container.isPresent()) {
-            Logger.getInstance().info("Starting container " + ranch.getName() + "_" + serverName + "...");
+            Logger.info("Starting container " + ranch.getName() + "_" + serverName + "...");
             container.get().start();
         } else {
-            Logger.getInstance().warn("Operation (start) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
+            Logger.warn("Operation (start) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
         }
         ;
     }
@@ -137,10 +137,10 @@ public class DockerService {
         if (ranch == null) return;
         Optional<ServerContainer> container = ranch.getServer(serverName);
         if (container.isPresent()) {
-            Logger.getInstance().info("Stopping container " + ranchName + "_" + serverName + "...");
+            Logger.info("Stopping container " + ranchName + "_" + serverName + "...");
             container.get().stop();
         } else {
-            Logger.getInstance().warn("Operation (stop) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
+            Logger.warn("Operation (stop) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
         }
     }
 
@@ -149,12 +149,12 @@ public class DockerService {
         if (ranch == null) return;
         Optional<ServerContainer> container = ranch.getServer(serverName);
         if (container.isPresent()) {
-            Logger.getInstance().info("Setting status of server " + serverName + " to " + (running ? "running" : "stopped"));
+            Logger.info("Setting status of server " + serverName + " to " + (running ? "running" : "stopped"));
             container.get().setRunning(running);
             if (!running)
                 container.get().setLoaded(false);
         } else {
-            Logger.getInstance().warn("Operation (status change) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
+            Logger.warn("Operation (status change) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
         }
     }
 
@@ -163,10 +163,10 @@ public class DockerService {
         if (ranch == null) return;
         Optional<ServerContainer> container = ranch.getServer(serverName);
         if (container.isPresent()) {
-            Logger.getInstance().info("Setting status of server " + serverName + " to " + (loaded ? "loaded" : "unloaded"));
+            Logger.info("Setting status of server " + serverName + " to " + (loaded ? "loaded" : "unloaded"));
             container.get().setLoaded(loaded);
         } else {
-            Logger.getInstance().warn("Operation (loaded change) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
+            Logger.warn("Operation (loaded change) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
         }
     }
 
@@ -190,14 +190,14 @@ public class DockerService {
         File[] files = new File("share/").listFiles(filter);
 
         if (files == null) {
-            Logger.getInstance().warn("Jars update aborted.");
+            Logger.warn("Jars update aborted.");
             return;
         }
 
         for (File file : files) {
 
             String prefix = prefixMap.get(file.getName());
-            Logger.getInstance().info("Updating... '" + prefix + "'");
+            Logger.info("Updating... '" + prefix + "'");
 
             for (String settingsServerPath : share.getStringList(prefix, Collections.emptyList())) {
                 File dirToPlugins = new File((settings.getString(settingsServerPath + ".server", null) + "plugins").replaceAll("/home", ""));
@@ -208,7 +208,7 @@ public class DockerService {
                 }
             }
 
-            Logger.getInstance().info(file.delete() ? (prefix + " updated!") : (prefix + " could not be updated."));
+            Logger.info(file.delete() ? (prefix + " updated!") : (prefix + " could not be updated."));
         }
 
     }

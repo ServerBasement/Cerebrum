@@ -6,7 +6,7 @@ import it.ohalee.basementlib.api.persistence.generic.connection.TypeConnector;
 import it.ohalee.basementlib.api.persistence.sql.structure.AbstractSqlDatabase;
 import it.ohalee.basementlib.api.plugin.logging.PluginLogger;
 import it.ohalee.basementlib.common.plugin.AbstractBasementPlugin;
-import it.ohalee.cerebrum.standalone.Logger;
+import it.ohalee.cerebrum.app.Logger;
 import it.ohalee.cerebrum.standalone.config.CerebrumConfigAdapter;
 import lombok.Setter;
 
@@ -32,7 +32,32 @@ public class BasementLoader {
 
             @Override
             public PluginLogger provideLogger() {
-                return new Logger();
+                return new PluginLogger() {
+                    @Override
+                    public void info(String s) {
+                        Logger.info(s);
+                    }
+
+                    @Override
+                    public void warn(String s) {
+                        Logger.warn(s);
+                    }
+
+                    @Override
+                    public void warn(String s, Throwable t) {
+                        Logger.warn(s, t);
+                    }
+
+                    @Override
+                    public void severe(String s) {
+                        Logger.severe(s);
+                    }
+
+                    @Override
+                    public void severe(String s, Throwable t) {
+                        Logger.severe(s, t);
+                    }
+                };
             }
 
             @Override

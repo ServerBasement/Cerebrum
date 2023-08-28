@@ -3,7 +3,6 @@ include (
         'common',
         'common:loader-utils',
         'standalone',
-        'standalone:app',
-        'standalone:loader'
+        'standalone:app'
 )
 

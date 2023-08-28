@@ -8,11 +8,10 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Ports;
-import it.ohalee.basementlib.api.config.generic.adapter.ConfigurationAdapter;
 import it.ohalee.basementlib.api.redis.messages.implementation.ServerShutdownMessage;
 import it.ohalee.cerebrum.standalone.config.CerebrumConfigurationNode;
 import it.ohalee.cerebrum.standalone.docker.DockerService;
-import it.ohalee.cerebrum.standalone.Logger;
+import it.ohalee.cerebrum.app.Logger;
 import it.ohalee.cerebrum.standalone.basement.BasementLoader;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -101,7 +100,7 @@ public class ServerContainer {
 
     public void start() {
         if (running) {
-            Logger.getInstance().warn("Operation failed. Container " + name + " is already running.");
+            Logger.warn("Operation failed. Container " + name + " is already running.");
             return;
         }
         String image = containerSection.getString("image", null);
@@ -122,7 +121,7 @@ public class ServerContainer {
             if (!exposedPorts.isEmpty())
                 cmd.withExposedPorts(exposedPorts);
             running = true;
-            Logger.getInstance().info("A new container with image (" + image + ") and name (" + name + ") is starting...");
+            Logger.info("A new container with image (" + image + ") and name (" + name + ") is starting...");
             cmd.exec();
             try (StartContainerCmd startContainerCmd = DockerService.getClient().startContainerCmd(name)) {
                 startContainerCmd.exec();
@@ -142,7 +141,7 @@ public class ServerContainer {
 
     public void stop() {
         if (!running) {
-            Logger.getInstance().warn("Operation failed. Container " + name + " is already stopped.");
+            Logger.warn("Operation failed. Container " + name + " is already stopped.");
             return;
         }
         if (!loaded) {
@@ -154,9 +153,9 @@ public class ServerContainer {
             running = false;
             return;
         }
-        Logger.getInstance().info("Stopping container " + name + "...");
+        Logger.info("Stopping container " + name + "...");
         BasementLoader.get().redisManager().publishMessage(new ServerShutdownMessage(DockerService.SENDER_NAME, name));
-        Logger.getInstance().info("Container " + name + " stopped.");
+        Logger.info("Container " + name + " stopped.");
         running = false;
         loaded = false;
     }

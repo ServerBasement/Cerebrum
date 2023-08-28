@@ -1,0 +1,39 @@
+package it.ohalee.cerebrum.app;
+
+import it.ohalee.cerebrum.app.commands.CerebrumCommands;
+import it.ohalee.cerebrum.app.commands.TabCompletation;
+import it.ohalee.cerebrum.app.integration.CommandExecutor;
+import it.ohalee.cerebrum.common.loader.JarInJarClassLoader;
+import it.ohalee.cerebrum.common.loader.LoaderBootstrap;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.util.function.Consumer;
+
+@SpringBootApplication
+public class CerebrumApplication {
+
+    private static final String JAR_NAME = "cerebrum-standalone.jarinjar";
+    private static final String BOOTSTRAP_PLUGIN_CLASS = "it.ohalee.cerebrum.standalone.CerebrumBootstrap";
+
+    private static CommandExecutor commandExecutor;
+
+    // Entrypoint
+    public static void main(String[] args) {
+        JarInJarClassLoader loader = new JarInJarClassLoader(CerebrumApplication.class.getClassLoader(), JAR_NAME);
+        LoaderBootstrap plugin = loader.instantiatePlugin(BOOTSTRAP_PLUGIN_CLASS, Consumer.class, o -> setCommandExecutor((CommandExecutor) o));
+        plugin.onLoad();
+        plugin.onEnable();
+
+        TabCompletation.setDockerService(commandExecutor);
+        CerebrumCommands.setDockerService(commandExecutor);
+
+        SpringApplication.run(CerebrumApplication.class, args);
+    }
+
+    // called before start()
+    public static void setCommandExecutor(CommandExecutor commandExecutor) {
+        CerebrumApplication.commandExecutor = commandExecutor;
+    }
+
+}

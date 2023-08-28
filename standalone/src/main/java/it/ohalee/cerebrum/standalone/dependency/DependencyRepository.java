@@ -1,5 +1,7 @@
 package it.ohalee.cerebrum.standalone.dependency;
 
+import it.ohalee.cerebrum.app.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;

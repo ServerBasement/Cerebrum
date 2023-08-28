@@ -4,29 +4,6 @@ import java.util.Locale;
 
 public enum Dependency {
 
-    SPRING_BOOT("org.springframework.boot", "spring-boot", "2.6.6"),
-    SPRING_BOOT_AUTOCONFIGURE("org.springframework.boot", "spring-boot-autoconfigure", "2.6.6"),
-    SPRING_BOOT_STARTER("org.springframework.boot", "spring-boot-starter", "2.6.6"),
-    SPRING_BOOT_STARTER_LOG4J2("org.springframework.boot","spring-boot-starter-log4j2","2.6.6"),
-    SPRING_BOOT_STARTER_LOGGING("org.springframework.boot","spring-boot-starter-logging","2.6.6"),
-    SPRING_BOOT_STARTER_VALIDATOR("org.springframework.boot","spring-boot-starter-validation","2.6.6"),
-
-    SPRING_SHEEL_AUTOCONFIGURE("org.springframework.shell", "spring-shell-autoconfigure", "2.1.1"),
-    SPRING_SHELL_CORE("org.springframework.shell","spring-shell-core","2.1.1"),
-    SPRING_SHELL_STANDARD("org.springframework.shell","spring-shell-standard","2.1.1"),
-    SPRING_SHELL_STANDARD_COMMANDS("org.springframework.shell","spring-shell-standard-commands","2.1.1"),
-    SPRING_SHELL_STARTER("org.springframework.shell","spring-shell-starter","2.1.1"),
-    SPRING_SHELL_STARTER_JNA("org.springframework.shell","spring-shell-starter-jna","2.1.1"),
-    SPRING_SHELL_TABLE("org.springframework.shell","spring-shell-table","2.1.1"),
-
-    SPRING_AOP("org.springframework","spring-aop","6.0.11"),
-    SPRING_BEANS("org.springframework","spring-beans","6.0.11"),
-    SPRING_CONTEXT("org.springframework","spring-context","6.0.11"),
-    SPRING_CORE("org.springframework","spring-core","6.0.11"),
-    SPRING_EXPRESSION("org.springframework","spring-expression","6.0.11"),
-    SPRING_JCL("org.springframework","spring-jcl","6.0.11"),
-    SPRING_MESSAGING("org.springframework","spring-messaging","6.0.11"),
-
     BASEMENTLIB("com.github.ServerBasement.BasementLib","bukkit","1.3.42-all"),
     JACKSON_CORE("com.fasterxml.jackson.core","jackson-core","2.13.0"),
     JAVA_JNA("net.java.dev.jna","jna","5.12.1"),
@@ -80,7 +57,6 @@ public enum Dependency {
         String extra = classifier == null || classifier.isEmpty()
                 ? ""
                 : "-" + classifier;
-
         return name + "-" + this.version + extra + ".jar";
     }
 

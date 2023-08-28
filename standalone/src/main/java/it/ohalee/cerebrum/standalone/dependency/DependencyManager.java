@@ -1,8 +1,8 @@
 package it.ohalee.cerebrum.standalone.dependency;
 
 import it.ohalee.cerebrum.common.classpath.ClassPathAppender;
-import it.ohalee.cerebrum.standalone.CerebrumApplication;
-import it.ohalee.cerebrum.standalone.Logger;
+import it.ohalee.cerebrum.standalone.CerebrumBootstrap;
+import it.ohalee.cerebrum.app.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class DependencyManager {
     private final EnumMap<Dependency, Path> loaded = new EnumMap<>(Dependency.class);
     private final ClassPathAppender classPathAppender;
 
-    public DependencyManager(CerebrumApplication application) {
+    public DependencyManager(CerebrumBootstrap application) {
         this.cacheDirectory = setupCacheDirectory();
         this.loadingExecutor = new ForkJoinPool(16, new WorkerThreadFactory(), new ExceptionHandler(), false);
         this.classPathAppender = application.getClassPathAppender();
@@ -46,7 +46,7 @@ public class DependencyManager {
     private static final class ExceptionHandler implements Thread.UncaughtExceptionHandler {
         @Override
         public void uncaughtException(Thread t, Throwable e) {
-            Logger.getInstance().warn("Thread " + t.getName() + " threw an uncaught exception", e);
+            Logger.warn("Thread " + t.getName() + " threw an uncaught exception", e);
         }
     }
 

@@ -1,10 +1,10 @@
 package it.ohalee.cerebrum.standalone;
 
+import it.ohalee.cerebrum.app.integration.CommandExecutor;
 import it.ohalee.cerebrum.common.classpath.ClassPathAppender;
 import it.ohalee.cerebrum.common.classpath.JarInJarClassPathAppender;
 import it.ohalee.cerebrum.common.loader.LoaderBootstrap;
-import it.ohalee.cerebrum.standalone.commands.CerebrumCommands;
-import it.ohalee.cerebrum.standalone.commands.TabCompletation;
+import it.ohalee.cerebrum.standalone.command.StandaloneCommandManager;
 import it.ohalee.cerebrum.standalone.config.CerebrumConfigAdapter;
 import it.ohalee.cerebrum.standalone.dependency.DependencyManager;
 import it.ohalee.cerebrum.standalone.docker.DockerService;
@@ -12,24 +12,24 @@ import it.ohalee.cerebrum.standalone.basement.BasementLoader;
 import it.ohalee.cerebrum.standalone.basement.BasementService;
 import it.ohalee.cerebrum.standalone.dependency.Dependency;
 import lombok.Getter;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
-@SpringBootApplication
-public class CerebrumApplication implements LoaderBootstrap {
+public class CerebrumBootstrap implements LoaderBootstrap {
 
+    private final Consumer<CommandExecutor> consumer;
     private final Path dir;
-    private BasementLoader loader;
     @Getter
     private final ClassPathAppender classPathAppender;
+    private BasementLoader loader;
 
-    public CerebrumApplication() {
+    public CerebrumBootstrap(Consumer<CommandExecutor> consumer) {
+        this.consumer = consumer;
         this.dir = new File(".").toPath();
         this.classPathAppender = new JarInJarClassPathAppender(getClass().getClassLoader());
     }
@@ -45,20 +45,19 @@ public class CerebrumApplication implements LoaderBootstrap {
     }
 
     @Override
-    public void onEnable(String[] args) {
+    public void onEnable() {
         CerebrumConfigAdapter settings = (CerebrumConfigAdapter) loader.getBasement().plugin()
-                .provideConfigurationAdapter(CerebrumApplication.class, dir.resolve("settings.yml").toFile(), true);
+                .provideConfigurationAdapter(CerebrumBootstrap.class, dir.resolve("settings.yml").toFile(), true);
         CerebrumConfigAdapter share = (CerebrumConfigAdapter) loader.getBasement().plugin()
-                .provideConfigurationAdapter(CerebrumApplication.class, dir.resolve("share.yml").toFile(), true);
+                .provideConfigurationAdapter(CerebrumBootstrap.class, dir.resolve("share.yml").toFile(), true);
 
         DockerService dockerService = new DockerService(settings, share);
         new BasementService(loader, dockerService);
 
-        TabCompletation.setDockerService(dockerService);
-        CerebrumCommands.setDockerService(dockerService);
+        StandaloneCommandManager commandManager = new StandaloneCommandManager(dockerService);
+        consumer.accept(commandManager);
 
         dockerService.postExecution();
-        SpringApplication.run(CerebrumApplication.class, args);
     }
 
     @Override

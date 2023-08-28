@@ -1,7 +1,7 @@
 package it.ohalee.cerebrum.standalone.basement;
 
 import it.ohalee.basementlib.api.server.BukkitServer;
-import it.ohalee.cerebrum.standalone.Logger;
+import it.ohalee.cerebrum.app.Logger;
 import it.ohalee.cerebrum.standalone.docker.DockerService;
 import it.ohalee.cerebrum.standalone.docker.rancher.Ranch;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -16,11 +16,11 @@ public class BasementService {
         this.dockerService = dockerService;
 
         loader.getBasement().serverManager().setServerAddConsumer(server -> {
-            Logger.getInstance().info("SERVER ADD MESSAGE -> " + server.getName());
+            Logger.info("SERVER ADD MESSAGE -> " + server.getName());
             set(server, dockerService::setLoaded, true);
         });
         loader.getBasement().serverManager().setServerRemoveConsumer(server -> {
-            Logger.getInstance().info("SERVER REMOVE MESSAGE -> " + server.getName());
+            Logger.info("SERVER REMOVE MESSAGE -> " + server.getName());
             set(server, dockerService::setStatus, false);
         });
     }
