@@ -1,5 +1,5 @@
 rootProject.name = 'Cerebrum'
-include (
+include(
         'common',
         'common:loader-utils',
         'standalone',

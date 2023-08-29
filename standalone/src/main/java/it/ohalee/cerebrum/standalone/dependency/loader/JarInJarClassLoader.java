@@ -56,61 +56,11 @@ public class JarInJarClassLoader extends URLClassLoader {
      * Creates a new jar-in-jar class loader.
      *
      * @param loaderClassLoader the loader plugin's classloader (setup and created by the platform)
-     * @param jarResourcePath the path to the jar-in-jar resource within the loader jar
+     * @param jarResourcePath   the path to the jar-in-jar resource within the loader jar
      * @throws LoadingException if something unexpectedly bad happens
      */
     public JarInJarClassLoader(ClassLoader loaderClassLoader, String jarResourcePath) throws LoadingException {
         super(new URL[]{extractJar(loaderClassLoader, jarResourcePath)}, loaderClassLoader);
-    }
-
-    public void addJarToClasspath(URL url) {
-        addURL(url);
-    }
-
-    public void deleteJarResource() {
-        URL[] urls = getURLs();
-        if (urls.length == 0) {
-            return;
-        }
-
-        try {
-            Path path = Paths.get(urls[0].toURI());
-            Files.deleteIfExists(path);
-        } catch (Exception e) {
-            // ignore
-        }
-    }
-
-    /**
-     * Creates a new plugin instance.
-     *
-     * @param bootstrapClass the name of the bootstrap plugin class
-     * @param loaderPluginType the type of the loader plugin, the only parameter of the bootstrap
-     *                         plugin constructor
-     * @param loaderPlugin the loader plugin instance
-     * @param <T> the type of the loader plugin
-     * @return the instantiated bootstrap plugin
-     */
-    public <T> LoaderBootstrap instantiatePlugin(String bootstrapClass, Class<T> loaderPluginType, T loaderPlugin) throws LoadingException {
-        Class<? extends LoaderBootstrap> plugin;
-        try {
-            plugin = loadClass(bootstrapClass).asSubclass(LoaderBootstrap.class);
-        } catch (ReflectiveOperationException e) {
-            throw new LoadingException("Unable to load bootstrap class", e);
-        }
-
-        Constructor<? extends LoaderBootstrap> constructor;
-        try {
-            constructor = plugin.getConstructor(loaderPluginType);
-        } catch (ReflectiveOperationException e) {
-            throw new LoadingException("Unable to get bootstrap constructor", e);
-        }
-
-        try {
-            return constructor.newInstance(loaderPlugin);
-        } catch (ReflectiveOperationException e) {
-            throw new LoadingException("Unable to create bootstrap plugin instance", e);
-        }
     }
 
     /**
@@ -118,7 +68,7 @@ public class JarInJarClassLoader extends URLClassLoader {
      * then returns a URL that can be used by the {@link JarInJarClassLoader}.
      *
      * @param loaderClassLoader the classloader for the "host" loader plugin
-     * @param jarResourcePath the inner jar resource path
+     * @param jarResourcePath   the inner jar resource path
      * @return a URL to the extracted file
      */
     private static URL extractJar(ClassLoader loaderClassLoader, String jarResourcePath) throws LoadingException {
@@ -151,6 +101,56 @@ public class JarInJarClassLoader extends URLClassLoader {
             return path.toUri().toURL();
         } catch (MalformedURLException e) {
             throw new LoadingException("Unable to get URL from path", e);
+        }
+    }
+
+    public void addJarToClasspath(URL url) {
+        addURL(url);
+    }
+
+    public void deleteJarResource() {
+        URL[] urls = getURLs();
+        if (urls.length == 0) {
+            return;
+        }
+
+        try {
+            Path path = Paths.get(urls[0].toURI());
+            Files.deleteIfExists(path);
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
+    /**
+     * Creates a new plugin instance.
+     *
+     * @param bootstrapClass   the name of the bootstrap plugin class
+     * @param loaderPluginType the type of the loader plugin, the only parameter of the bootstrap
+     *                         plugin constructor
+     * @param loaderPlugin     the loader plugin instance
+     * @param <T>              the type of the loader plugin
+     * @return the instantiated bootstrap plugin
+     */
+    public <T> LoaderBootstrap instantiatePlugin(String bootstrapClass, Class<T> loaderPluginType, T loaderPlugin) throws LoadingException {
+        Class<? extends LoaderBootstrap> plugin;
+        try {
+            plugin = loadClass(bootstrapClass).asSubclass(LoaderBootstrap.class);
+        } catch (ReflectiveOperationException e) {
+            throw new LoadingException("Unable to load bootstrap class", e);
+        }
+
+        Constructor<? extends LoaderBootstrap> constructor;
+        try {
+            constructor = plugin.getConstructor(loaderPluginType);
+        } catch (ReflectiveOperationException e) {
+            throw new LoadingException("Unable to get bootstrap constructor", e);
+        }
+
+        try {
+            return constructor.newInstance(loaderPlugin);
+        } catch (ReflectiveOperationException e) {
+            throw new LoadingException("Unable to create bootstrap plugin instance", e);
         }
     }
 

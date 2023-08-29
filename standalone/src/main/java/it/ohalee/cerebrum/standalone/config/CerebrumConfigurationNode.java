@@ -1,6 +1,5 @@
 package it.ohalee.cerebrum.standalone.config;
 
-import com.google.common.reflect.TypeToken;
 import it.ohalee.basementlib.api.config.generic.adapter.ConfigurationAdapter;
 import it.ohalee.basementlib.api.plugin.BasementPlugin;
 import ninja.leaping.configurate.ConfigurationNode;
@@ -16,6 +15,15 @@ public class CerebrumConfigurationNode extends SimpleConfigurationNode implement
 
     private final Map<String, Object> self = new LinkedHashMap<>();
 
+    protected CerebrumConfigurationNode(@Nullable Object key, @Nullable SimpleConfigurationNode parent, @NonNull ConfigurationOptions options) {
+        super(key, parent, options);
+
+        for (Map.Entry<Object, ? extends ConfigurationNode> entry : this.getChildrenMap().entrySet()) {
+            String s = (entry.getKey() == null) ? "null" : entry.getKey().toString();
+            self.put(s, entry.getValue());
+        }
+    }
+
     public static CerebrumConfigurationNode of(ConfigurationNode node) {
         if (!(node instanceof SimpleConfigurationNode)) {
             throw new IllegalArgumentException("Cannot create a CerebrumConfigurationNode from a node that isn't a SimpleConfigurationNode");
@@ -25,15 +33,6 @@ public class CerebrumConfigurationNode extends SimpleConfigurationNode implement
 
     public static CerebrumConfigurationNode of(SimpleConfigurationNode node) {
         return new CerebrumConfigurationNode(node.getKey(), node.getParent(), node.getOptions());
-    }
-
-    protected CerebrumConfigurationNode(@Nullable Object key, @Nullable SimpleConfigurationNode parent, @NonNull ConfigurationOptions options) {
-        super(key, parent, options);
-
-        for (Map.Entry<Object, ? extends ConfigurationNode> entry : this.getChildrenMap().entrySet()) {
-            String s = (entry.getKey() == null) ? "null" : entry.getKey().toString();
-            self.put(s, entry.getValue());
-        }
     }
 
     protected ConfigurationNode resolvePath(String path) {
@@ -46,7 +45,8 @@ public class CerebrumConfigurationNode extends SimpleConfigurationNode implement
     }
 
     @Override
-    public void reload() {}
+    public void reload() {
+    }
 
     public Set<String> getKeys() {
         return this.self.keySet();

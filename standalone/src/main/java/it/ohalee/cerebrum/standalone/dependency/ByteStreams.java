@@ -88,7 +88,7 @@ public final class ByteStreams {
 
     public static long copy(ReadableByteChannel from, WritableByteChannel to) throws IOException {
         if (from instanceof FileChannel sourceChannel) {
-          long oldPosition = sourceChannel.position();
+            long oldPosition = sourceChannel.position();
             long position = oldPosition;
             long copied;
             do {

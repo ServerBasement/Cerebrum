@@ -5,7 +5,6 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
-@SuppressWarnings("unused")
 @ShellComponent
 public class CerebrumCommands {
 

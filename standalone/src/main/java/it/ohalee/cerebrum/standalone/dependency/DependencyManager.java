@@ -1,8 +1,8 @@
 package it.ohalee.cerebrum.standalone.dependency;
 
+import it.ohalee.cerebrum.app.scheduler.CerebrumScheduler;
 import it.ohalee.cerebrum.common.classpath.ClassPathAppender;
 import it.ohalee.cerebrum.standalone.CerebrumBootstrap;
-import it.ohalee.cerebrum.app.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,41 +13,18 @@ import java.util.EnumMap;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class DependencyManager {
 
     private final Path cacheDirectory;
-    private final Executor loadingExecutor;
     private final EnumMap<Dependency, Path> loaded = new EnumMap<>(Dependency.class);
+    private final CerebrumScheduler scheduler;
     private final ClassPathAppender classPathAppender;
 
-    public DependencyManager(CerebrumBootstrap application) {
+    public DependencyManager(CerebrumBootstrap bootstrap) {
         this.cacheDirectory = setupCacheDirectory();
-        this.loadingExecutor = new ForkJoinPool(16, new WorkerThreadFactory(), new ExceptionHandler(), false);
-        this.classPathAppender = application.getClassPathAppender();
-    }
-
-    private static final class WorkerThreadFactory implements ForkJoinPool.ForkJoinWorkerThreadFactory {
-        private static final AtomicInteger COUNT = new AtomicInteger(0);
-
-        @Override
-        public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
-            ForkJoinWorkerThread thread = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-            thread.setDaemon(true);
-            thread.setName("cerebrum-worker-" + COUNT.getAndIncrement());
-            return thread;
-        }
-    }
-
-    private static final class ExceptionHandler implements Thread.UncaughtExceptionHandler {
-        @Override
-        public void uncaughtException(Thread t, Throwable e) {
-            Logger.warn("Thread " + t.getName() + " threw an uncaught exception", e);
-        }
+        this.scheduler = bootstrap.getScheduler();
+        this.classPathAppender = bootstrap.getClassPathAppender();
     }
 
     private static Path setupCacheDirectory() {
@@ -69,6 +46,7 @@ public class DependencyManager {
     }
 
     public void loadDependencies(Set<Dependency> dependencies) {
+        System.out.println("Loading dependencies...");
         CountDownLatch latch = new CountDownLatch(dependencies.size());
 
         for (Dependency dependency : dependencies) {
@@ -77,7 +55,7 @@ public class DependencyManager {
                 continue;
             }
 
-            this.loadingExecutor.execute(() -> {
+            this.scheduler.execute(() -> {
                 try {
                     loadDependency(dependency);
                 } catch (Throwable e) {

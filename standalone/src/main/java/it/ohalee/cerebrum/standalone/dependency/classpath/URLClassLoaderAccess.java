@@ -11,6 +11,12 @@ import java.util.Collection;
  */
 public abstract class URLClassLoaderAccess {
 
+    private final URLClassLoader classLoader;
+
+    protected URLClassLoaderAccess(URLClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
     /**
      * Creates a {@link URLClassLoaderAccess} for the given class loader.
      *
@@ -27,12 +33,11 @@ public abstract class URLClassLoaderAccess {
         }
     }
 
-    private final URLClassLoader classLoader;
-
-    protected URLClassLoaderAccess(URLClassLoader classLoader) {
-        this.classLoader = classLoader;
+    private static void throwError(Throwable cause) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("LuckPerms is unable to inject into the plugin URLClassLoader.\n" +
+                "You may be able to fix this problem by adding the following command-line argument " +
+                "directly after the 'java' command in your start script: \n'--add-opens java.base/java.lang=ALL-UNNAMED'", cause);
     }
-
 
     /**
      * Adds the given URL to the class loader.
@@ -40,12 +45,6 @@ public abstract class URLClassLoaderAccess {
      * @param url the URL to add
      */
     public abstract void addURL(URL url);
-
-    private static void throwError(Throwable cause) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("LuckPerms is unable to inject into the plugin URLClassLoader.\n" +
-                "You may be able to fix this problem by adding the following command-line argument " +
-                "directly after the 'java' command in your start script: \n'--add-opens java.base/java.lang=ALL-UNNAMED'", cause);
-    }
 
     /**
      * Accesses using reflection, not supported on Java 9+.
@@ -64,12 +63,12 @@ public abstract class URLClassLoaderAccess {
             ADD_URL_METHOD = addUrlMethod;
         }
 
-        private static boolean isSupported() {
-            return ADD_URL_METHOD != null;
-        }
-
         Reflection(URLClassLoader classLoader) {
             super(classLoader);
+        }
+
+        private static boolean isSupported() {
+            return ADD_URL_METHOD != null;
         }
 
         @Override
@@ -102,10 +101,6 @@ public abstract class URLClassLoaderAccess {
             UNSAFE = unsafe;
         }
 
-        private static boolean isSupported() {
-            return UNSAFE != null;
-        }
-
         private final Collection<URL> unopenedURLs;
         private final Collection<URL> pathURLs;
 
@@ -128,6 +123,10 @@ public abstract class URLClassLoaderAccess {
             this.pathURLs = pathURLs;
         }
 
+        private static boolean isSupported() {
+            return UNSAFE != null;
+        }
+
         private static Object fetchField(final Class<?> clazz, final Object object, final String name) throws NoSuchFieldException {
             Field field = clazz.getDeclaredField(name);
             long offset = UNSAFE.objectFieldOffset(field);
@@ -140,7 +139,7 @@ public abstract class URLClassLoaderAccess {
                 URLClassLoaderAccess.throwError(new NullPointerException("unopenedURLs or pathURLs"));
             }
 
-            synchronized (this.unopenedURLs)  {
+            synchronized (this.unopenedURLs) {
                 this.unopenedURLs.add(url);
                 this.pathURLs.add(url);
             }

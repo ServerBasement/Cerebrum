@@ -16,12 +16,14 @@ public class CerebrumApplication {
     private static final String JAR_NAME = "cerebrum-standalone.jarinjar";
     private static final String BOOTSTRAP_PLUGIN_CLASS = "it.ohalee.cerebrum.standalone.CerebrumBootstrap";
 
+    private static LoaderBootstrap plugin;
     private static CommandExecutor commandExecutor;
 
     // Entrypoint
     public static void main(String[] args) {
         JarInJarClassLoader loader = new JarInJarClassLoader(CerebrumApplication.class.getClassLoader(), JAR_NAME);
-        LoaderBootstrap plugin = loader.instantiatePlugin(BOOTSTRAP_PLUGIN_CLASS, Consumer.class, o -> setCommandExecutor((CommandExecutor) o));
+
+        plugin = loader.instantiatePlugin(BOOTSTRAP_PLUGIN_CLASS, Consumer.class, o -> setCommandExecutor((CommandExecutor) o));
         plugin.onLoad();
         plugin.onEnable();
 
@@ -29,6 +31,11 @@ public class CerebrumApplication {
         CerebrumCommands.setDockerService(commandExecutor);
 
         SpringApplication.run(CerebrumApplication.class, args);
+    }
+
+    public static void shutdown() {
+        plugin.onDisable();
+        System.exit(0);
     }
 
     // called before start()

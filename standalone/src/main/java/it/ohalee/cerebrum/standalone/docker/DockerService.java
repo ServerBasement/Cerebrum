@@ -11,13 +11,13 @@ import com.github.dockerjava.transport.DockerHttpClient;
 import it.ohalee.basementlib.api.redis.RedisManager;
 import it.ohalee.basementlib.api.redis.messages.implementation.VelocityNotifyMessage;
 import it.ohalee.basementlib.api.remote.RemoteCerebrumService;
-import it.ohalee.cerebrum.standalone.config.CerebrumConfigAdapter;
 import it.ohalee.cerebrum.app.Logger;
 import it.ohalee.cerebrum.standalone.basement.BasementLoader;
 import it.ohalee.cerebrum.standalone.basement.redis.handlers.StartServerHandler;
 import it.ohalee.cerebrum.standalone.basement.redis.handlers.VelocityNotifyHandler;
 import it.ohalee.cerebrum.standalone.basement.redis.message.StartServerMessage;
 import it.ohalee.cerebrum.standalone.basement.redis.remote.RemoteCerebrumServiceImpl;
+import it.ohalee.cerebrum.standalone.config.CerebrumConfigAdapter;
 import it.ohalee.cerebrum.standalone.docker.container.ServerContainer;
 import it.ohalee.cerebrum.standalone.docker.rancher.Ranch;
 import lombok.Getter;
@@ -171,9 +171,8 @@ public class DockerService {
     }
 
     public void recalculateConfiguration() {
-        for (Ranch ranch : ranches.values()) {
-            ranch.recalculateConfiguration(settings.section(ranch.getName()));
-        }
+        ranches.clear();
+        findRanches();
     }
 
     public void updateJars() {
@@ -187,8 +186,12 @@ public class DockerService {
                     }
                     return false;
                 });
-        File[] files = new File("share/").listFiles(filter);
+        File dir = new File("share/");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
 
+        File[] files = dir.listFiles(filter);
         if (files == null) {
             Logger.warn("Jars update aborted.");
             return;

@@ -12,7 +12,6 @@ targetCompatibility = JavaVersion.VERSION_17
 configurations {
     configureEach {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-        exclude group: 'org.springframework.shell', module: 'spring-shell-standard-commands'
     }
 }
 
@@ -29,7 +28,11 @@ dependencies {
 
 bootJar {
     manifest {
-        attributes 'Start-Class': 'it.ohalee.cerebrum.app.CerebrumApplication'
+        attributes(
+                'Start-Class': 'it.ohalee.cerebrum.app.CerebrumApplication',
+                'Implementation-Title': 'Cerebrum',
+                'Implementation-Version': project.ext.fullVersion
+        )
     }
     archiveFileName = "Cerebrum-${project.ext.fullVersion}.jar"
 

@@ -1,7 +1,8 @@
 package it.ohalee.cerebrum.standalone.command;
 
-import it.ohalee.cerebrum.app.integration.CommandExecutor;
+import it.ohalee.cerebrum.app.CerebrumApplication;
 import it.ohalee.cerebrum.app.Logger;
+import it.ohalee.cerebrum.app.integration.CommandExecutor;
 import it.ohalee.cerebrum.standalone.docker.DockerService;
 import it.ohalee.cerebrum.standalone.docker.container.ServerContainer;
 import it.ohalee.cerebrum.standalone.docker.rancher.Ranch;
@@ -56,7 +57,7 @@ public class StandaloneCommandManager implements CommandExecutor {
             case "quit" -> {
                 Logger.info("Quit command issued");
                 DockerService.getExecutor().shutdown();
-                System.exit(0);
+                CerebrumApplication.shutdown();
                 return "Bye Bye!";
             }
             case "end" -> {
@@ -102,7 +103,7 @@ public class StandaloneCommandManager implements CommandExecutor {
                 }
                 return builder.toString();
             }
-            case "update" ->  {
+            case "update" -> {
                 dockerService.updateJars();
             }
         }
