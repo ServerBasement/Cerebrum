@@ -83,11 +83,13 @@ public class Ranch {
         }
     }
 
+    // TODO: 29/08/2023 return enum for error handling
     public void shutdown() {
         for (ServerContainer value : servers.values())
             value.stop();
     }
 
+    // TODO: 29/08/2023 return enum for error handling
     public void startLeaders() {
         for (ServerContainer value : servers.values()) {
             if (value.getType() == ServerContainer.Type.LEADER)

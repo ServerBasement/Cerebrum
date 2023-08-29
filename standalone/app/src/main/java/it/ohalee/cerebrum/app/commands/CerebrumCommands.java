@@ -15,13 +15,13 @@ public class CerebrumCommands {
     }
 
     @ShellMethod("Starts a container and its server")
-    public void start(@ShellOption(value = "-r", valueProvider = TabCompletation.class) String ranch, @ShellOption(value = "-s", valueProvider = TabCompletation.class, defaultValue = "all") String serverName) {
-        commandExecutor.execute("start", ranch, serverName, false);
+    public String start(@ShellOption(value = "-r", valueProvider = TabCompletation.class) String ranch, @ShellOption(value = "-s", valueProvider = TabCompletation.class, defaultValue = "all") String serverName) {
+        return commandExecutor.execute("start", ranch, serverName, false);
     }
 
     @ShellMethod("Stops a container and its server")
-    public void stop(@ShellOption(value = "-r", valueProvider = TabCompletation.class) String ranch, @ShellOption(value = "-s", valueProvider = TabCompletation.class, defaultValue = "all") String serverName) {
-        commandExecutor.execute("stop", ranch, serverName, null);
+    public String stop(@ShellOption(value = "-r", valueProvider = TabCompletation.class) String ranch, @ShellOption(value = "-s", valueProvider = TabCompletation.class, defaultValue = "all") String serverName) {
+        return commandExecutor.execute("stop", ranch, serverName, null);
     }
 
     @ShellMethod("Stops all containers")
@@ -55,8 +55,8 @@ public class CerebrumCommands {
     }
 
     @ShellMethod("Send file update")
-    public void update() {
-        commandExecutor.execute("update", null, null, null);
+    public String update() {
+        return commandExecutor.execute("update", null, null, null);
     }
 
 }

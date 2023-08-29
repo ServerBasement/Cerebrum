@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component;
 public class CustomShellPrompt implements PromptProvider {
     @Override
     public AttributedString getPrompt() {
-        return new AttributedString("CEREBRUM > ", AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN));
+        return new AttributedString("Cerebrum > ", AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN));
     }
 }

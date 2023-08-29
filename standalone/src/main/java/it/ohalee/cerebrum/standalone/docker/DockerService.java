@@ -32,6 +32,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class DockerService {
@@ -107,6 +108,14 @@ public class DockerService {
         }
     }
 
+    // TODO: 29/08/2023 return enum class for errors handling
+    public void handle(Consumer<ServerContainer> consumer) {
+        for (Ranch ranch : getRanches())
+            for (ServerContainer server : ranch.getServers())
+                consumer.accept(server);
+    }
+
+    // TODO: 29/08/2023 return enum class for errors handling
     public void startServer(String ranchName, String serverName, boolean flush) {
         Ranch ranch = ranches.get(ranchName);
         if (ranch == null) {
@@ -132,6 +141,7 @@ public class DockerService {
         ;
     }
 
+    // TODO: 29/08/2023 return enum class for errors handling
     public void stopServer(String ranchName, String serverName) {
         Ranch ranch = ranches.get(ranchName);
         if (ranch == null) return;
@@ -144,6 +154,7 @@ public class DockerService {
         }
     }
 
+    // TODO: 29/08/2023 return enum class for errors handling
     public void setStatus(String ranchName, String serverName, boolean running) {
         Ranch ranch = ranches.get(ranchName);
         if (ranch == null) return;
@@ -158,6 +169,7 @@ public class DockerService {
         }
     }
 
+    // TODO: 29/08/2023 return enum class for errors handling
     public void setLoaded(String ranchName, String serverName, boolean loaded) {
         Ranch ranch = ranches.get(ranchName);
         if (ranch == null) return;
@@ -175,6 +187,7 @@ public class DockerService {
         findRanches();
     }
 
+    // TODO: 29/08/2023 return enum class for errors handling
     public void updateJars() {
         Collection<String> seekingJarsPrefixes = share.getKeys();
         Map<String, String> prefixMap = new HashMap<>(); // file -> prefix
