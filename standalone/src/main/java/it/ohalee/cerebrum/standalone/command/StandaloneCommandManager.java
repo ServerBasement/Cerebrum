@@ -25,7 +25,7 @@ public class StandaloneCommandManager implements CommandExecutor {
         this.arguments.put("startall", new StartAllArgument(dockerService));
         this.arguments.put("list", new ListArgument(dockerService));
         this.arguments.put("quit", new QuitArgument(dockerService));
-        this.arguments.put("end", new EndArgument(dockerService));
+        this.arguments.put("end", new EndArgument(this));
         this.arguments.put("reload", new ReloadArgument(dockerService));
         this.arguments.put("update", new UpdateArgument(dockerService));
     }
