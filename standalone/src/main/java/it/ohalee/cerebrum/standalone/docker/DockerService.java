@@ -12,6 +12,8 @@ import it.ohalee.basementlib.api.redis.RedisManager;
 import it.ohalee.basementlib.api.redis.messages.implementation.VelocityNotifyMessage;
 import it.ohalee.basementlib.api.remote.RemoteCerebrumService;
 import it.ohalee.cerebrum.app.Logger;
+import it.ohalee.cerebrum.app.util.CerebrumError;
+import it.ohalee.cerebrum.app.util.CerebrumReason;
 import it.ohalee.cerebrum.standalone.basement.BasementLoader;
 import it.ohalee.cerebrum.standalone.basement.redis.handlers.StartServerHandler;
 import it.ohalee.cerebrum.standalone.basement.redis.handlers.VelocityNotifyHandler;
@@ -108,78 +110,91 @@ public class DockerService {
         }
     }
 
-    // TODO: 29/08/2023 return enum class for errors handling
-    public void handle(Consumer<ServerContainer> consumer) {
+    public CerebrumError handle(Consumer<ServerContainer> consumer) {
+        if (getRanches().isEmpty())
+            return CerebrumError.of(CerebrumReason.RANCH_ERROR, "No ranches registered.");
         for (Ranch ranch : getRanches())
             for (ServerContainer server : ranch.getServers())
                 consumer.accept(server);
+        return CerebrumError.of(CerebrumReason.OK, null);
     }
 
-    // TODO: 29/08/2023 return enum class for errors handling
-    public void startServer(String ranchName, String serverName, boolean flush) {
+    public CerebrumError startServer(String ranchName, String serverName, boolean flush) {
         Ranch ranch = ranches.get(ranchName);
         if (ranch == null) {
-            if (flush)
+            if (flush) {
                 BasementLoader.get().redisManager().publishMessage(new StartServerMessage(uuid, ranchName, serverName));
-            return;
+                return CerebrumError.of(CerebrumReason.OK, null); // Flush is intentional so OK is returned
+            }
+            return CerebrumError.of(CerebrumReason.RANCH_ERROR, "No ranches registered.");
         }
+
         String qualifiedName = ranchName + "_" + serverName;
         for (String worker : ranch.getWorkers()) {
             if (qualifiedName.startsWith(ranch.getName() + "_" + worker)) {
                 Logger.info("Starting worker container " + ranch.getName() + "_" + serverName + "...");
                 ranch.registerWorker(qualifiedName, worker, ServerContainer.Type.WORKER, false, false).start();
-                return;
+                return CerebrumError.of(CerebrumReason.OK, null);
             }
         }
+
         Optional<ServerContainer> container = ranch.getServer(serverName);
-        if (container.isPresent()) {
-            Logger.info("Starting container " + ranch.getName() + "_" + serverName + "...");
-            container.get().start();
-        } else {
+        if (container.isEmpty()) {
             Logger.warn("Operation (start) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
+            return CerebrumError.of(CerebrumReason.SERVER_ERROR, "Server not registered in ranch " + ranchName + ".");
         }
-        ;
+
+        Logger.info("Starting container " + ranch.getName() + "_" + serverName + "...");
+        return container.get().start();
     }
 
-    // TODO: 29/08/2023 return enum class for errors handling
-    public void stopServer(String ranchName, String serverName) {
+    public CerebrumError stopServer(String ranchName, String serverName) {
         Ranch ranch = ranches.get(ranchName);
-        if (ranch == null) return;
+        if (ranch == null)
+            return CerebrumError.of(CerebrumReason.RANCH_ERROR, "No ranches registered.");
+
         Optional<ServerContainer> container = ranch.getServer(serverName);
-        if (container.isPresent()) {
-            Logger.info("Stopping container " + ranchName + "_" + serverName + "...");
-            container.get().stop();
-        } else {
+        if (container.isEmpty()) {
             Logger.warn("Operation (stop) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
+            return CerebrumError.of(CerebrumReason.SERVER_ERROR, "Server not registered in ranch " + ranchName + ".");
         }
+
+        Logger.info("Stopping container " + ranchName + "_" + serverName + "...");
+        return container.get().stop();
     }
 
-    // TODO: 29/08/2023 return enum class for errors handling
-    public void setStatus(String ranchName, String serverName, boolean running) {
+    public CerebrumError setStatus(String ranchName, String serverName, boolean running) {
         Ranch ranch = ranches.get(ranchName);
-        if (ranch == null) return;
+        if (ranch == null)
+            return CerebrumError.of(CerebrumReason.RANCH_ERROR, "No ranches registered.");
+
         Optional<ServerContainer> container = ranch.getServer(serverName);
-        if (container.isPresent()) {
-            Logger.info("Setting status of server " + serverName + " to " + (running ? "running" : "stopped"));
-            container.get().setRunning(running);
-            if (!running)
-                container.get().setLoaded(false);
-        } else {
+        if (container.isEmpty()) {
             Logger.warn("Operation (status change) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
+            return CerebrumError.of(CerebrumReason.SERVER_ERROR, "Server not registered in ranch " + ranchName + ".");
         }
+
+        Logger.info("Setting status of server " + serverName + " to " + (running ? "running" : "stopped"));
+        container.get().setRunning(running);
+        if (!running)
+            container.get().setLoaded(false);
+        return CerebrumError.of(CerebrumReason.OK, null);
     }
 
-    // TODO: 29/08/2023 return enum class for errors handling
-    public void setLoaded(String ranchName, String serverName, boolean loaded) {
+    public CerebrumError setLoaded(String ranchName, String serverName, boolean loaded) {
         Ranch ranch = ranches.get(ranchName);
-        if (ranch == null) return;
+        if (ranch == null)
+            return CerebrumError.of(CerebrumReason.RANCH_ERROR, "No ranches registered.");
+
         Optional<ServerContainer> container = ranch.getServer(serverName);
-        if (container.isPresent()) {
-            Logger.info("Setting status of server " + serverName + " to " + (loaded ? "loaded" : "unloaded"));
-            container.get().setLoaded(loaded);
-        } else {
+        if (container.isEmpty()) {
             Logger.warn("Operation (loaded change) failed, " + serverName + " in ranch " + ranchName + " is not registered.");
+            return CerebrumError.of(CerebrumReason.SERVER_ERROR, "Server not registered in ranch " + ranchName + ".");
         }
+
+        Logger.info("Setting status of server " + serverName + " to " + (loaded ? "loaded" : "unloaded"));
+        container.get().setLoaded(loaded);
+        return CerebrumError.of(CerebrumReason.OK, null);
     }
 
     public void recalculateConfiguration() {
@@ -187,8 +202,7 @@ public class DockerService {
         findRanches();
     }
 
-    // TODO: 29/08/2023 return enum class for errors handling
-    public void updateJars() {
+    public CerebrumError updateJars() {
         Collection<String> seekingJarsPrefixes = share.getKeys();
         Map<String, String> prefixMap = new HashMap<>(); // file -> prefix
         FilenameFilter filter = (dir, name) -> name.endsWith(".jar") && seekingJarsPrefixes.stream()
@@ -205,13 +219,12 @@ public class DockerService {
         }
 
         File[] files = dir.listFiles(filter);
-        if (files == null) {
+        if (files == null || files.length == 0) {
             Logger.warn("Jars update aborted.");
-            return;
+            return CerebrumError.of(CerebrumReason.ERROR, "No files found.");
         }
 
         for (File file : files) {
-
             String prefix = prefixMap.get(file.getName());
             Logger.info("Updating... '" + prefix + "'");
 
@@ -220,13 +233,14 @@ public class DockerService {
                 try {
                     Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(dirToPlugins.getAbsolutePath() + "/" + file.getName()), StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Logger.severe("Could not update '" + prefix + "' to '" + settingsServerPath + "'.", e);
+                    return CerebrumError.of(CerebrumReason.ERROR, "Could not update '" + prefix + "' to '" + settingsServerPath + "'.");
                 }
             }
 
             Logger.info(file.delete() ? (prefix + " updated!") : (prefix + " could not be updated."));
         }
-
+        return CerebrumError.of(CerebrumReason.OK, null);
     }
 
 }

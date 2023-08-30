@@ -9,7 +9,6 @@ import it.ohalee.cerebrum.standalone.docker.container.ServerContainer;
 import it.ohalee.cerebrum.standalone.docker.rancher.Ranch;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class StandaloneCommandManager implements CommandExecutor {
@@ -44,23 +43,11 @@ public class StandaloneCommandManager implements CommandExecutor {
 
     @Override
     public List<String> tabCompletion(String currentWord, List<String> words, String currentWordUpToCursor) {
-        switch (currentWord) {
-            case "ranch" -> {
-                return dockerService.getRegisteredRanches().parallelStream()
-                        .filter(ranch -> ranch.startsWith(currentWordUpToCursor))
-                        .toList();
-            }
-            case "serverName" -> {
-                Optional<Ranch> optRanch = dockerService.getRanch(words.get(1));
-                if (optRanch.isEmpty())
-                    return Collections.emptyList();
-                String ranchName = optRanch.get().getName();
-                return optRanch.get().getServers().parallelStream()
-                        .map(container -> container.getName().replace(ranchName + "_", ""))
-                        .filter(s -> s.startsWith(currentWordUpToCursor))
-                        .collect(Collectors.toList());
-            }
+        List<String> tab = new LinkedList<>(dockerService.getRegisteredRanches());
+
+        for (Ranch ranch : dockerService.getRanches()) {
+            tab.addAll(ranch.getServers().stream().map(ServerContainer::getName).toList());
         }
-        return Collections.emptyList();
+        return tab;
     }
 }

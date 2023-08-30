@@ -15,13 +15,15 @@ public class CerebrumCommands {
     }
 
     @ShellMethod("Starts a container and its server")
-    public String start(@ShellOption(value = "-r", valueProvider = TabCompletation.class) String ranch, @ShellOption(value = "-s", valueProvider = TabCompletation.class, defaultValue = "all") String serverName) {
-        return commandExecutor.execute("start", ranch, serverName, false);
+    public String start(@ShellOption(value = { "-r", "--ranch" }, valueProvider = TabCompletation.class) String ranch,
+                        @ShellOption(value = { "-s", "--server" }, valueProvider = TabCompletation.class, defaultValue = "all") String server) {
+        return commandExecutor.execute("start", ranch, server, false);
     }
 
     @ShellMethod("Stops a container and its server")
-    public String stop(@ShellOption(value = "-r", valueProvider = TabCompletation.class) String ranch, @ShellOption(value = "-s", valueProvider = TabCompletation.class, defaultValue = "all") String serverName) {
-        return commandExecutor.execute("stop", ranch, serverName, null);
+    public String stop(@ShellOption(value = { "-r", "--ranch" }, valueProvider = TabCompletation.class) String ranch,
+                       @ShellOption(value = { "-s", "--server" }, valueProvider = TabCompletation.class, defaultValue = "all") String server) {
+        return commandExecutor.execute("stop", ranch, server, null);
     }
 
     @ShellMethod("Stops all containers")
@@ -50,7 +52,7 @@ public class CerebrumCommands {
     }
 
     @ShellMethod("Lists all containers")
-    public String list(@ShellOption(defaultValue = "all", valueProvider = TabCompletation.class) String ranch) {
+    public String list(@ShellOption(value = { "-r", "--ranch" }, valueProvider = TabCompletation.class, defaultValue = "all") String ranch) {
         return commandExecutor.execute("list", ranch, null, null);
     }
 

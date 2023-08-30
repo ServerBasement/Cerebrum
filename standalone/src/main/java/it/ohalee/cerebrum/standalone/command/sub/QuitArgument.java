@@ -3,7 +3,6 @@ package it.ohalee.cerebrum.standalone.command.sub;
 import it.ohalee.cerebrum.app.CerebrumApplication;
 import it.ohalee.cerebrum.standalone.command.ArgumentCommand;
 import it.ohalee.cerebrum.standalone.docker.DockerService;
-import it.ohalee.cerebrum.standalone.docker.container.ServerContainer;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

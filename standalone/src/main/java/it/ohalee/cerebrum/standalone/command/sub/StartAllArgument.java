@@ -1,5 +1,6 @@
 package it.ohalee.cerebrum.standalone.command.sub;
 
+import it.ohalee.cerebrum.app.util.CerebrumError;
 import it.ohalee.cerebrum.standalone.command.ArgumentCommand;
 import it.ohalee.cerebrum.standalone.docker.DockerService;
 import it.ohalee.cerebrum.standalone.docker.container.ServerContainer;
@@ -12,7 +13,6 @@ public class StartAllArgument implements ArgumentCommand {
 
     @Override
     public String execute(String arg, String ranch, String serverName, Boolean value) {
-        dockerService.handle(ServerContainer::start);
-        return "All servers should start up";
+        return CerebrumError.evaluate(dockerService.handle(ServerContainer::start), "All servers should start up");
     }
 }

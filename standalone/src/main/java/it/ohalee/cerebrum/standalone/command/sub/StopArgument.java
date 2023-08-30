@@ -1,5 +1,6 @@
 package it.ohalee.cerebrum.standalone.command.sub;
 
+import it.ohalee.cerebrum.app.util.CerebrumError;
 import it.ohalee.cerebrum.standalone.command.ArgumentCommand;
 import it.ohalee.cerebrum.standalone.docker.DockerService;
 import it.ohalee.cerebrum.standalone.docker.rancher.Ranch;
@@ -20,11 +21,10 @@ public class StopArgument implements ArgumentCommand {
         }
 
         if (serverName.equalsIgnoreCase("all")) {
-            optRanch.get().shutdown();
-            return "The " + ranch + " ranch servers are shutting down";
+            return CerebrumError.evaluate(optRanch.get().shutdown(), "The " + ranch + " ranch servers are shutting down");
         }
 
-        dockerService.stopServer(ranch, serverName);
-        return "Server " + ranch + "." + serverName + " is shutting down";
+        return CerebrumError.evaluate(dockerService.stopServer(ranch, serverName),
+                "Server " + ranch + "." + serverName + " is shutting down");
     }
 }

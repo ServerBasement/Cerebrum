@@ -1,6 +1,6 @@
 package it.ohalee.cerebrum.standalone.command.sub;
 
-import it.ohalee.cerebrum.app.Logger;
+import it.ohalee.cerebrum.app.util.CerebrumError;
 import it.ohalee.cerebrum.standalone.command.ArgumentCommand;
 import it.ohalee.cerebrum.standalone.docker.DockerService;
 import it.ohalee.cerebrum.standalone.docker.rancher.Ranch;
@@ -21,11 +21,10 @@ public class StartArgument implements ArgumentCommand {
         }
 
         if (serverName.equalsIgnoreCase("all")) {
-            optRanch.get().startLeaders();
-            return "The " + ranch + " ranch servers are starting up";
+            return CerebrumError.evaluate(optRanch.get().startLeaders(), "The " + ranch + " ranch servers are starting up");
         }
 
-        dockerService.startServer(ranch, serverName, false);
-        return "Server " + ranch + "." + serverName + " is starting";
+        return CerebrumError.evaluate(dockerService.startServer(ranch, serverName, false),
+                "Server " + ranch + "." + serverName + " is starting");
     }
 }

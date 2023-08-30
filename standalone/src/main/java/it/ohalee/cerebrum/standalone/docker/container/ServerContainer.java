@@ -10,12 +10,15 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Ports;
 import it.ohalee.basementlib.api.redis.messages.implementation.ServerShutdownMessage;
 import it.ohalee.cerebrum.app.Logger;
+import it.ohalee.cerebrum.app.util.CerebrumError;
+import it.ohalee.cerebrum.app.util.CerebrumReason;
 import it.ohalee.cerebrum.standalone.basement.BasementLoader;
 import it.ohalee.cerebrum.standalone.config.CerebrumConfigurationNode;
 import it.ohalee.cerebrum.standalone.docker.DockerService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.Validate;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,71 +41,69 @@ public class ServerContainer {
     private String worldDirectory;
     private String ipv4;
 
-    public void setContainerSection(CerebrumConfigurationNode containerSection) {
-        this.containerSection = containerSection;
+    public void setContainerSection(CerebrumConfigurationNode node) {
+        this.containerSection = node;
 
-        File logsFolder = new File(containerSection.getString("logs", null).replace("{name}", name));
+        String folder = Validate.notNull(node.getString("logs", null), "Logs folder cannot be null");
+        File logsFolder = new File(folder.replace("{name}", name));
         if (!logsFolder.exists()) {
-            if (!logsFolder.getParentFile().exists()) {
-                logsFolder.getParentFile().mkdir();
+            if (!logsFolder.mkdirs()) {
+                Logger.severe("Cannot create logs folder for container " + name);
             }
-            logsFolder.mkdir();
         }
 
-        worldDirectory = containerSection.getString("world", null);
-        ipv4 = containerSection.getString("ipv4", null);
+        worldDirectory = Validate.notNull(node.getString("world", null), "World directory cannot be null");
+        ipv4 = Validate.notNull(node.getString("ipv4", null), "Ipv4 cannot be null");
 
         hostConfig = HostConfig.newHostConfig()
                 .withAutoRemove(true)
-                .withBinds(Bind.parse(containerSection.getString("server", null) + ":/server"),
-                        Bind.parse(containerSection.getString("logs", null).replace("{name}", name) + ":/server/logs"));
+                .withBinds(
+                        Bind.parse(Validate.notNull(node.getString("server", null), "Server directory cannot be null") + ":/server"),
+                        Bind.parse(folder.replace("{name}", name) + ":/server/logs")
+                );
 
         if (ipv4 == null || ipv4.isEmpty()) {
-            hostConfig.withNetworkMode(containerSection.getString("net", null));
+            hostConfig.withNetworkMode(node.getString("net", null));
         }
 
-        if (containerSection.get("port", null) != null) {
-            int port = containerSection.getInteger("port", 25565);
+        if (node.get("port", null) != null) {
+            int port = node.getInteger("port", 25565);
             ExposedPort exposedPort = ExposedPort.tcp(port);
             Ports portBindings = new Ports();
             portBindings.bind(exposedPort, Ports.Binding.bindPort(port));
             hostConfig.withPortBindings(portBindings);
             exposedPorts.add(exposedPort);
-        } else if (containerSection.get("ports", null) != null) {
-            try {
-                List<String> ports = containerSection.getStringList("ports", Collections.emptyList());
-                Ports portBindings = new Ports();
-                for (String portString : ports) {
-                    String[] args = portString.split(":");
-                    ExposedPort exposedPort;
-                    int port;
-                    if (args.length == 1) {
-                        port = Integer.parseInt(args[0]);
-                        exposedPort = ExposedPort.tcp(port);
+        } else if (node.get("ports", null) != null) {
+            List<String> ports = node.getStringList("ports", Collections.emptyList());
+            Ports portBindings = new Ports();
+            for (String portString : ports) {
+                String[] args = portString.split(":");
+                ExposedPort exposedPort;
+                int port;
+                if (args.length == 1) {
+                    port = Integer.parseInt(args[0]);
+                    exposedPort = ExposedPort.tcp(port);
+                } else {
+                    port = Integer.parseInt(args[1]);
+                    if (args[0].equals("udp")) {
+                        exposedPort = ExposedPort.udp(port);
                     } else {
-                        port = Integer.parseInt(args[1]);
-                        if (args[0].equals("udp")) {
-                            exposedPort = ExposedPort.udp(port);
-                        } else {
-                            exposedPort = ExposedPort.tcp(port);
-                        }
+                        exposedPort = ExposedPort.tcp(port);
                     }
-                    portBindings.bind(exposedPort, Ports.Binding.bindPort(port));
-                    exposedPorts.add(exposedPort);
                 }
-                hostConfig.withPortBindings(portBindings);
-            } catch (Exception e) {
-                e.printStackTrace();
+                portBindings.bind(exposedPort, Ports.Binding.bindPort(port));
+                exposedPorts.add(exposedPort);
             }
+            hostConfig.withPortBindings(portBindings);
         }
-
     }
 
-    public void start() {
+    public CerebrumError start() {
         if (running) {
             Logger.warn("Operation failed. Container " + name + " is already running.");
-            return;
+            return CerebrumError.of(CerebrumReason.SERVER_ERROR, "Container " + name + " is already running.");
         }
+
         String image = containerSection.getString("image", null);
         try (CreateContainerCmd cmd = DockerService.getClient().createContainerCmd(image)) {
             cmd.withName(name)
@@ -111,11 +112,10 @@ public class ServerContainer {
                     .withUser("1000:1000")
                     .withWorkingDir("/server")
                     .withEnv("TZ=Europe/Rome"); // TODO: 26/08/2023 Change this to a config value
-            if (worldDirectory != null && !worldDirectory.isEmpty()) {
+            if (worldDirectory != null && !worldDirectory.isEmpty())
                 cmd.withEntrypoint("/bin/sh", "start.sh", name, "--docker-world", worldDirectory);
-            } else {
+            else
                 cmd.withEntrypoint("/bin/sh", "start.sh", name);
-            }
             cmd.withStdinOpen(true)
                     .withTty(true);
             if (!exposedPorts.isEmpty())
@@ -123,27 +123,30 @@ public class ServerContainer {
             running = true;
             Logger.info("A new container with image (" + image + ") and name (" + name + ") is starting...");
             cmd.exec();
+
             try (StartContainerCmd startContainerCmd = DockerService.getClient().startContainerCmd(name)) {
                 startContainerCmd.exec();
-                if (ipv4 != null && !ipv4.isEmpty()) {
-                    try (ConnectToNetworkCmd connectToNetworkCmd = DockerService.getClient().connectToNetworkCmd()) {
-                        connectToNetworkCmd
-                                .withNetworkId(containerSection.getString("net", null))
-                                .withContainerId(name)
-                                .exec();
-                    }
+
+                if (ipv4 == null || ipv4.isEmpty())
+                    return CerebrumError.of(CerebrumReason.ERROR, "Configuration error: ipv4 is null or empty");
+
+                try (ConnectToNetworkCmd connectToNetworkCmd = DockerService.getClient().connectToNetworkCmd()) {
+                    connectToNetworkCmd
+                            .withNetworkId(containerSection.getString("net", null))
+                            .withContainerId(name)
+                            .exec();
                 }
             }
         }
-
-
+        return CerebrumError.of(CerebrumReason.OK, null);
     }
 
-    public void stop() {
+    public CerebrumError stop() {
         if (!running) {
             Logger.warn("Operation failed. Container " + name + " is already stopped.");
-            return;
+            return CerebrumError.of(CerebrumReason.SERVER_ERROR, "Container " + name + " is already stopped.");
         }
+
         if (!loaded) {
             DockerService.getExecutor().submit(() -> {
                 try (StopContainerCmd stopContainerCmd = DockerService.getClient().stopContainerCmd(name)) {
@@ -151,13 +154,15 @@ public class ServerContainer {
                 }
             });
             running = false;
-            return;
+            return CerebrumError.of(CerebrumReason.SERVER_ERROR, "Container " + name + " is running but it is not loaded. It will be stopped.");
         }
+
         Logger.info("Stopping container " + name + "...");
         BasementLoader.get().redisManager().publishMessage(new ServerShutdownMessage(DockerService.SENDER_NAME, name));
-        Logger.info("Container " + name + " stopped.");
+        //Logger.info("Container " + name + " stopped."); todo wait for a confirm? It is not said that the server has really shut down
         running = false;
         loaded = false;
+        return CerebrumError.of(CerebrumReason.OK, null);
     }
 
     public enum Type {

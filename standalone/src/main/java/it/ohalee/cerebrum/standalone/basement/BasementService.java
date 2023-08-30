@@ -16,11 +16,11 @@ public class BasementService {
         this.dockerService = dockerService;
 
         loader.getBasement().serverManager().setServerAddConsumer(server -> {
-            Logger.info("SERVER ADD MESSAGE -> " + server.getName());
+            Logger.info("Server add message -> " + server.getName());
             set(server, dockerService::setLoaded, true);
         });
         loader.getBasement().serverManager().setServerRemoveConsumer(server -> {
-            Logger.info("SERVER REMOVE MESSAGE -> " + server.getName());
+            Logger.info("Server remove message -> " + server.getName());
             set(server, dockerService::setStatus, false);
         });
     }

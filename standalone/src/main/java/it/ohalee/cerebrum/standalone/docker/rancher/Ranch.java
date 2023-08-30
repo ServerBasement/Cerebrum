@@ -1,6 +1,8 @@
 package it.ohalee.cerebrum.standalone.docker.rancher;
 
 import it.ohalee.cerebrum.app.Logger;
+import it.ohalee.cerebrum.app.util.CerebrumError;
+import it.ohalee.cerebrum.app.util.CerebrumReason;
 import it.ohalee.cerebrum.standalone.config.CerebrumConfigurationNode;
 import it.ohalee.cerebrum.standalone.docker.container.ServerContainer;
 import lombok.Getter;
@@ -83,18 +85,32 @@ public class Ranch {
         }
     }
 
-    // TODO: 29/08/2023 return enum for error handling
-    public void shutdown() {
-        for (ServerContainer value : servers.values())
-            value.stop();
+    public CerebrumError shutdown() {
+        if (servers.isEmpty())
+            return CerebrumError.of(CerebrumReason.SERVER_ERROR, "No servers found in this ranch");
+
+        for (ServerContainer value : servers.values()) {
+            CerebrumError error = value.stop();
+            if (error.code() != CerebrumReason.OK) {
+                return error;
+            }
+        }
+        return CerebrumError.of(CerebrumReason.OK, null);
     }
 
-    // TODO: 29/08/2023 return enum for error handling
-    public void startLeaders() {
+    public CerebrumError startLeaders() {
+        if (servers.isEmpty())
+            return CerebrumError.of(CerebrumReason.SERVER_ERROR, "No servers found in this ranch");
+
         for (ServerContainer value : servers.values()) {
-            if (value.getType() == ServerContainer.Type.LEADER)
-                value.start();
+            if (value.getType() == ServerContainer.Type.LEADER) {
+                CerebrumError error = value.start();
+                if (error.code() != CerebrumReason.OK) {
+                    return error;
+                }
+            }
         }
+        return CerebrumError.of(CerebrumReason.OK, null);
     }
 
 }
