@@ -45,15 +45,14 @@ public class Ranch {
     }
 
     public void findContainers(List<com.github.dockerjava.api.model.Container> availableRancherContainers) {
-
-        Logger.info("FOUND CONTAINERS -> " + availableRancherContainers.stream().map(container -> container.getNames()[0]).collect(Collectors.toList()));
+        Logger.info("Founded Containers -> " + availableRancherContainers.stream().map(container -> container.getNames()[0]).collect(Collectors.toList()));
 
         for (ServerContainer.Type containerType : ServerContainer.Type.values()) {
             for (String containerPatternName : ranchSection.section(containerType.toString().toLowerCase()).getKeys()) {
                 availableRancherContainers.stream()
                         .filter(container -> container.getNames()[0].substring(1).startsWith(name + "_" + containerPatternName))
                         .forEach(container -> {
-                                    Logger.info("CONTAINER NAME -> " + Arrays.toString(container.getNames()) + " -> " + container.getNames()[0].substring(1).replace(name + "_", "") + " status " + container.getState());
+                                    Logger.info("Container Name -> " + Arrays.toString(container.getNames()) + " -> " + container.getNames()[0].substring(1).replace(name + "_", "") + " status " + container.getState());
                                     registerContainer(container.getNames()[0].substring(1), containerPatternName,
                                             containerType, ranchSection.section(containerType.toString().toLowerCase() + "." + containerPatternName),
                                             container.getState().contains("running"), true);
@@ -65,7 +64,7 @@ public class Ranch {
 
     public void registerLeaders() {
         for (String leader : ranchSection.section("leader").getKeys()) {
-            Logger.info("REGISTERING LEADER -> " + leader);
+            Logger.info("Registering leader -> " + leader);
             String name = this.name + "_" + leader;
             if (servers.containsKey(leader) && servers.get(leader).isRunning()) continue;
             ServerContainer container = registerContainer(name, leader, ServerContainer.Type.LEADER, ranchSection.section("leader." + leader), false, false);
