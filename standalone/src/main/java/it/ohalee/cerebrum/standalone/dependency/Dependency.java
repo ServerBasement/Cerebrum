@@ -5,7 +5,7 @@ import java.util.Locale;
 public enum Dependency {
 
     BASEMENTLIB("com.github.ServerBasement.BasementLib", "bukkit", "1.3.42-all"),
-    JACKSON_CORE("com.fasterxml.jackson.core", "jackson-core", "2.13.0"),
+    JACKSON_CORE("com.fasterxml.jackson.core", "jackson-core", "2.15.0"),
     JAVA_JNA("net.java.dev.jna", "jna", "5.12.1"),
 
     DOCKER_JAVA("com.github.docker-java", "docker-java", "3.3.3"),

@@ -1,5 +1,6 @@
 package it.ohalee.cerebrum.standalone.dependency;
 
+import it.ohalee.cerebrum.app.Logger;
 import it.ohalee.cerebrum.app.scheduler.CerebrumScheduler;
 import it.ohalee.cerebrum.common.classpath.ClassPathAppender;
 import it.ohalee.cerebrum.standalone.CerebrumBootstrap;
@@ -46,7 +47,7 @@ public class DependencyManager {
     }
 
     public void loadDependencies(Set<Dependency> dependencies) {
-        System.out.println("Loading dependencies...");
+        Logger.info("Loading dependencies...");
         CountDownLatch latch = new CountDownLatch(dependencies.size());
 
         for (Dependency dependency : dependencies) {

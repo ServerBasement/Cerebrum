@@ -35,12 +35,11 @@ public class BasementLoader {
                 return new PluginLogger() {
                     @Override
                     public void info(String s) {
+                        Logger.info(s);
                     }
 
                     @Override
-                    public void warn(String s) {
-                        Logger.warn(s);
-                    }
+                    public void warn(String s) {}
 
                     @Override
                     public void warn(String s, Throwable t) {

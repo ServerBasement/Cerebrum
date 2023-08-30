@@ -121,15 +121,13 @@ public class ServerContainer {
                 cmd.withEntrypoint("/bin/sh", "start.sh", name, "--docker-world", worldDirectory);
             else
                 cmd.withEntrypoint("/bin/sh", "start.sh", name);
-            cmd.withStdinOpen(true)
-                    .withTty(true);
+            cmd.withStdinOpen(true).withTty(true);
             if (!exposedPorts.isEmpty())
                 cmd.withExposedPorts(exposedPorts);
             running = true;
-
-            Logger.info("New container " + name + " with image " + image + " is starting...");
             cmd.exec();
 
+            Logger.info("New container " + name + " with image " + image + " is starting...");
             try (StartContainerCmd startContainerCmd = DockerService.getClient().startContainerCmd(name)) {
                 startContainerCmd.exec();
             }

@@ -1,5 +1,6 @@
 package it.ohalee.cerebrum.standalone.dependency;
 
+import it.ohalee.cerebrum.app.Logger;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
@@ -83,7 +84,7 @@ public enum DependencyRepository {
         try {
             byte[] bytes = download(dependency);
             Files.write(file, bytes);
-            System.out.println("Downloaded " + dependency.getFileName(null) + " (" + FileUtils.byteCountToDisplaySize(bytes.length) + ")");
+            Logger.info("Downloaded " + dependency.getFileName(null) + " (" + FileUtils.byteCountToDisplaySize(bytes.length) + ")");
         } catch (IOException e) {
             throw new DependencyDownloadException(e);
         }
