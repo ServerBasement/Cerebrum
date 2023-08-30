@@ -35,7 +35,6 @@ public class BasementLoader {
                 return new PluginLogger() {
                     @Override
                     public void info(String s) {
-                        Logger.info(s);
                     }
 
                     @Override

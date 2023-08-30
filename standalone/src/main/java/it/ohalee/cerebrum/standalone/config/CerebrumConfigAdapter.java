@@ -18,8 +18,8 @@ public class CerebrumConfigAdapter extends ConfigurateConfigAdapter implements C
 
     public CerebrumConfigAdapter(BasementPlugin plugin, Path path) {
         super(plugin, path);
-
         for (Map.Entry<Object, ? extends ConfigurationNode> entry : this.root.getChildrenMap().entrySet()) {
+            if (!entry.getValue().isMap() && !entry.getValue().isList()) continue;
             String key = (entry.getKey() == null) ? "null" : entry.getKey().toString();
             self.put(key, entry.getValue());
         }
@@ -36,7 +36,7 @@ public class CerebrumConfigAdapter extends ConfigurateConfigAdapter implements C
 
     @Override
     public CerebrumConfigurationNode section(String path) {
-        return CerebrumConfigurationNode.of(super.resolvePath(path));
+        return CerebrumConfigurationNode.of(resolvePath(path));
     }
 
 }

@@ -18,14 +18,14 @@ public class ListArgument implements ArgumentCommand {
         StringBuilder builder = new StringBuilder("\n");
         if (ranch.equalsIgnoreCase("all")) {
             for (Ranch registeredRanch : dockerService.getRanches()) {
-                builder.append(registeredRanch.getName()).append(" ->\n");
+                builder.append(registeredRanch.getName()).append(":\n");
                 for (ServerContainer server : registeredRanch.getServers()) {
                     if (server.getType() == ServerContainer.Type.WORKER && !server.isLoaded() && !server.isRunning())
                         continue;
                     builder.append("  ")
                             .append(server.getName().replace(registeredRanch.getName() + "_", ""))
-                            .append(" ( Loaded: ").append(server.isLoaded()).append(" )")
-                            .append(" ( Running: ").append(server.isRunning()).append(" )")
+                            .append(" (Loaded: ").append(server.isLoaded()).append(")")
+                            .append(" (Running: ").append(server.isRunning()).append(")")
                             .append("\n");
                 }
             }
@@ -37,12 +37,12 @@ public class ListArgument implements ArgumentCommand {
             return "Operation failed, cannot find " + ranch + " as ranch.";
         }
 
-        builder.append(optional.get().getName()).append(" ->\n");
+        builder.append(optional.get().getName()).append(": \n");
         for (ServerContainer server : optional.get().getServers()) {
             builder.append("  ")
                     .append(server.getName().replace(optional.get().getName() + "_", ""))
-                    .append(" ( Loaded: ").append(server.isLoaded()).append(" )")
-                    .append(" ( Running: ").append(server.isRunning()).append(" )")
+                    .append(" (Loaded: ").append(server.isLoaded()).append(")")
+                    .append(" (Running: ").append(server.isRunning()).append(")")
                     .append("\n");
         }
         return builder.toString();

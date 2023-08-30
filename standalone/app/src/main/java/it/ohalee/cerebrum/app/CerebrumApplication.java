@@ -5,6 +5,7 @@ import it.ohalee.cerebrum.app.commands.TabCompletation;
 import it.ohalee.cerebrum.app.integration.CommandExecutor;
 import it.ohalee.cerebrum.common.loader.JarInJarClassLoader;
 import it.ohalee.cerebrum.common.loader.LoaderBootstrap;
+import lombok.Getter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -18,6 +19,8 @@ public class CerebrumApplication {
 
     private static LoaderBootstrap plugin;
     private static CommandExecutor commandExecutor;
+    @Getter
+    private static boolean loaded = false;
 
     // Entrypoint
     public static void main(String[] args) {
@@ -30,6 +33,7 @@ public class CerebrumApplication {
         TabCompletation.setDockerService(commandExecutor);
         CerebrumCommands.setDockerService(commandExecutor);
 
+        loaded = true;
         SpringApplication.run(CerebrumApplication.class, args);
     }
 

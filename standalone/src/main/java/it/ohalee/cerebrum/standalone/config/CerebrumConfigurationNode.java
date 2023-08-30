@@ -15,8 +15,8 @@ public class CerebrumConfigurationNode extends SimpleConfigurationNode implement
 
     private final Map<String, Object> self = new LinkedHashMap<>();
 
-    protected CerebrumConfigurationNode(@Nullable Object key, @Nullable SimpleConfigurationNode parent, @NonNull ConfigurationOptions options) {
-        super(key, parent, options);
+    protected CerebrumConfigurationNode(@Nullable SimpleConfigurationNode parent, @NonNull SimpleConfigurationNode copy) {
+        super(parent, copy);
 
         for (Map.Entry<Object, ? extends ConfigurationNode> entry : this.getChildrenMap().entrySet()) {
             String s = (entry.getKey() == null) ? "null" : entry.getKey().toString();
@@ -32,7 +32,7 @@ public class CerebrumConfigurationNode extends SimpleConfigurationNode implement
     }
 
     public static CerebrumConfigurationNode of(SimpleConfigurationNode node) {
-        return new CerebrumConfigurationNode(node.getKey(), node.getParent(), node.getOptions());
+        return new CerebrumConfigurationNode(node.getParent(), node);
     }
 
     protected ConfigurationNode resolvePath(String path) {

@@ -100,10 +100,9 @@ public class DockerService {
                 Ranch newRanch = new Ranch(ranchName, settings.section(ranchName));
                 ranches.put(ranchName, newRanch);
                 executor.submit(() -> {
-                    newRanch.findContainers(
-                            allContainers.stream()
-                                    .filter(container -> container.getNames().length > 0 && container.getNames()[0].substring(1).startsWith(ranchName))
-                                    .collect(Collectors.toList()));
+                    newRanch.findContainers(allContainers.stream()
+                            .filter(container -> container.getNames().length > 0 && container.getNames()[0].substring(1).startsWith(ranchName))
+                            .collect(Collectors.toList()));
                     newRanch.registerLeaders();
                 });
             }

@@ -1,9 +1,6 @@
 package it.ohalee.cerebrum.standalone.docker.container;
 
-import com.github.dockerjava.api.command.ConnectToNetworkCmd;
-import com.github.dockerjava.api.command.CreateContainerCmd;
-import com.github.dockerjava.api.command.StartContainerCmd;
-import com.github.dockerjava.api.command.StopContainerCmd;
+import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
@@ -18,7 +15,7 @@ import it.ohalee.cerebrum.standalone.docker.DockerService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.apache.commons.lang3.Validate;
+import it.ohalee.cerebrum.app.util.Validate;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,7 +41,7 @@ public class ServerContainer {
     public void setContainerSection(CerebrumConfigurationNode node) {
         this.containerSection = node;
 
-        String folder = Validate.notNull(node.getString("logs", null), "Logs folder cannot be null");
+        String folder = Validate.notNull(node.getString("logs", null), name + ": Logs folder cannot be null");
         File logsFolder = new File(folder.replace("{name}", name));
         if (!logsFolder.exists()) {
             if (!logsFolder.mkdirs()) {
@@ -52,13 +49,13 @@ public class ServerContainer {
             }
         }
 
-        worldDirectory = Validate.notNull(node.getString("world", null), "World directory cannot be null");
-        ipv4 = Validate.notNull(node.getString("ipv4", null), "Ipv4 cannot be null");
+        worldDirectory = node.getString("world", null);
+        ipv4 = node.getString("ipv4", null);
 
         hostConfig = HostConfig.newHostConfig()
                 .withAutoRemove(true)
                 .withBinds(
-                        Bind.parse(Validate.notNull(node.getString("server", null), "Server directory cannot be null") + ":/server"),
+                        Bind.parse(Validate.notNull(node.getString("server", null), name + ": Server directory cannot be null") + ":/server"),
                         Bind.parse(folder.replace("{name}", name) + ":/server/logs")
                 );
 
@@ -104,7 +101,15 @@ public class ServerContainer {
             return CerebrumError.of(CerebrumReason.SERVER_ERROR, "Container " + name + " is already running.");
         }
 
-        String image = containerSection.getString("image", null);
+        String image = Validate.notNull(containerSection.getString("image", null), name + ": Image cannot be null");
+
+        try (ListImagesCmd cmd = DockerService.getClient().listImagesCmd().withImageNameFilter(image)) {
+            if (cmd.exec().isEmpty()) {
+                Logger.severe(name + ": cannot find image " + image);
+                return CerebrumError.of(CerebrumReason.SERVER_ERROR, name + ": cannot find image " + image);
+            }
+        }
+
         try (CreateContainerCmd cmd = DockerService.getClient().createContainerCmd(image)) {
             cmd.withName(name)
                     .withHostName(name)
@@ -121,18 +126,17 @@ public class ServerContainer {
             if (!exposedPorts.isEmpty())
                 cmd.withExposedPorts(exposedPorts);
             running = true;
-            Logger.info("A new container with image (" + image + ") and name (" + name + ") is starting...");
+
+            Logger.info("New container " + name + " with image " + image + " is starting...");
             cmd.exec();
 
             try (StartContainerCmd startContainerCmd = DockerService.getClient().startContainerCmd(name)) {
                 startContainerCmd.exec();
+            }
 
-                if (ipv4 == null || ipv4.isEmpty())
-                    return CerebrumError.of(CerebrumReason.ERROR, "Configuration error: ipv4 is null or empty");
-
+            if (ipv4 != null && !ipv4.isEmpty()) {
                 try (ConnectToNetworkCmd connectToNetworkCmd = DockerService.getClient().connectToNetworkCmd()) {
-                    connectToNetworkCmd
-                            .withNetworkId(containerSection.getString("net", null))
+                    connectToNetworkCmd.withNetworkId(containerSection.getString("net", null))
                             .withContainerId(name)
                             .exec();
                 }

@@ -1,6 +1,6 @@
 leader: true
 
-server:
+main:
   leader:
     velocity:
       server: "./server/velocity/"
@@ -12,14 +12,12 @@ server:
         - "25565" # java
         - "udp:19132" # bedrock
       startup: true
-
     auth:
       server: "./server/primary/auth/"
       logs: "./server/primary/auth/logs/"
       image: "minecraft:17-alpine"
       net: "mc-net"
       startup: true
-
     oneblock:
       server: "./server/oneblock/"
       logs: "./server/oneblock/logs/"
@@ -29,14 +27,14 @@ server:
 
 hub:
   leader:
-    1:
+    "1":
       server: "./server/primary/hub_1/"
       logs: "./server/primary/hub_logs/hub_1/"
       image: "minecraft:17-alpine"
       net: "mc-net"
       world: "world_1"
       startup: true
-    2:
+    "2":
       server: "./server/primary/hub_1/"
       logs: "./server/primary/hub_logs/hub_2/"
       image: "minecraft:17-alpine"
@@ -59,7 +57,7 @@ bedwars:
       image: "minecraft:17-alpine"
       net: "mc-net"
       world: "world_2"
-      startup: true
+      startup: false
     lobby_3:
       server: "./server/bedwars/lobby_1/"
       logs: "./server/bedwars/lobby_logs/lobby_3/"

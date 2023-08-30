@@ -1,5 +1,6 @@
 package it.ohalee.cerebrum.standalone.docker.rancher;
 
+import com.github.dockerjava.api.model.Container;
 import it.ohalee.cerebrum.app.Logger;
 import it.ohalee.cerebrum.app.util.CerebrumError;
 import it.ohalee.cerebrum.app.util.CerebrumReason;
@@ -44,12 +45,12 @@ public class Ranch {
         return Optional.ofNullable(servers.get(serverName));
     }
 
-    public void findContainers(List<com.github.dockerjava.api.model.Container> availableRancherContainers) {
-        Logger.info("Founded Containers -> " + availableRancherContainers.stream().map(container -> container.getNames()[0]).collect(Collectors.toList()));
+    public void findContainers(List<Container> containers) {
+        Logger.info(name + " containers already started -> " + containers.stream().map(container -> container.getNames()[0]).toList());
 
         for (ServerContainer.Type containerType : ServerContainer.Type.values()) {
             for (String containerPatternName : ranchSection.section(containerType.toString().toLowerCase()).getKeys()) {
-                availableRancherContainers.stream()
+                containers.stream()
                         .filter(container -> container.getNames()[0].substring(1).startsWith(name + "_" + containerPatternName))
                         .forEach(container -> {
                                     Logger.info("Container Name -> " + Arrays.toString(container.getNames()) + " -> " + container.getNames()[0].substring(1).replace(name + "_", "") + " status " + container.getState());
@@ -63,25 +64,21 @@ public class Ranch {
     }
 
     public void registerLeaders() {
-        for (String leader : ranchSection.section("leader").getKeys()) {
-            Logger.info("Registering leader -> " + leader);
+        Set<String> keys = ranchSection.section("leader").getKeys();
+        for (String leader : keys) {
             String name = this.name + "_" + leader;
             if (servers.containsKey(leader) && servers.get(leader).isRunning()) continue;
+
             ServerContainer container = registerContainer(name, leader, ServerContainer.Type.LEADER, ranchSection.section("leader." + leader), false, false);
-            if (ranchSection.getBoolean("leader." + leader + ".startup", true))
+            if (ranchSection.getBoolean("leader." + leader + ".startup", true)) {
                 container.start();
+            }
+            Logger.info("Registered leader -> " + name);
         }
     }
 
     public Set<String> getWorkers() {
         return new HashSet<>(ranchSection.section("worker").getKeys());
-    }
-
-    public void recalculateConfiguration(CerebrumConfigurationNode configuration) {
-        this.ranchSection = configuration;
-        for (ServerContainer server : servers.values()) {
-            server.setContainerSection(ranchSection.section(server.getType().toString().toLowerCase() + "." + server.getRegisteredName()));
-        }
     }
 
     public CerebrumError shutdown() {
