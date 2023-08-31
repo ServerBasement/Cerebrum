@@ -23,7 +23,7 @@ public class ListArgument implements ArgumentCommand {
                     if (server.getType() == ServerContainer.Type.WORKER && !server.isLoaded() && !server.isRunning())
                         continue;
                     builder.append("  ")
-                            .append(server.getName().replace(registeredRanch.getName() + "_", ""))
+                            .append(server.getName().replace(registeredRanch.getName() + "-", ""))
                             .append(" (Loaded: ").append(server.isLoaded()).append(")")
                             .append(" (Running: ").append(server.isRunning()).append(")")
                             .append("\n");
@@ -40,7 +40,7 @@ public class ListArgument implements ArgumentCommand {
         builder.append(optional.get().getName()).append(": \n");
         for (ServerContainer server : optional.get().getServers()) {
             builder.append("  ")
-                    .append(server.getName().replace(optional.get().getName() + "_", ""))
+                    .append(server.getName().replace(optional.get().getName() + "-", ""))
                     .append(" (Loaded: ").append(server.isLoaded()).append(")")
                     .append(" (Running: ").append(server.isRunning()).append(")")
                     .append("\n");

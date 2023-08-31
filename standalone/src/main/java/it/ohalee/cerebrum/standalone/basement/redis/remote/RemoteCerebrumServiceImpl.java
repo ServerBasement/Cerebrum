@@ -11,7 +11,7 @@ public class RemoteCerebrumServiceImpl implements RemoteCerebrumService {
 
     @Override
     public void createServer(String name) {
-        String ranchName = name.split("_")[0];
+        String ranchName = name.split("-")[0];
         String serverName = name.substring(ranchName.length() + 1);
         dockerService.startServer(ranchName, serverName, true);
     }

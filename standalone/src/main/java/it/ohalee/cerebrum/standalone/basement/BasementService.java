@@ -26,9 +26,9 @@ public class BasementService {
     }
 
     private void set(BukkitServer server, TriConsumer<String, String, Boolean> consumer, boolean status) {
-        String ranchName = server.getName().split("_")[0];
+        String ranchName = server.getName().split("-")[0];
         Optional<Ranch> optionalRanch = dockerService.getRanch(ranchName);
-        consumer.accept(optionalRanch.isPresent() ? ranchName : "server", server.getName().replace(ranchName + "_", ""), status);
+        consumer.accept(optionalRanch.isPresent() ? ranchName : "server", server.getName().replace(ranchName + "-", ""), status);
     }
 
 }

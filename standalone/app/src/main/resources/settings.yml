@@ -44,27 +44,13 @@ hub:
 
 bedwars:
   leader:
-    lobby_1:
+    lobby-1:
       server: "/home/minecraft/bedwars/lobby_1/"
       logs: "/home/minecraft/bedwars/lobby_logs/lobby_1/"
       image: "amazoncorretto:17-alpine-jdk"
       net: "mc-net"
       world: "world_1"
       startup: true
-    lobby_2:
-      server: "/home/minecraft/bedwars/lobby_1/"
-      logs: "/home/minecraft/bedwars/lobby_logs/lobby_2/"
-      image: "amazoncorretto:17-alpine-jdk"
-      net: "mc-net"
-      world: "world_2"
-      startup: false
-    lobby_3:
-      server: "/home/minecraft/bedwars/lobby_1/"
-      logs: "/home/minecraft/bedwars/lobby_logs/lobby_3/"
-      image: "amazoncorretto:17-alpine-jdk"
-      net: "mc-net"
-      world: "world_3"
-      startup: false
   worker:
     instance:
       server: "/home/minecraft/bedwars/game/"

@@ -37,7 +37,7 @@ public class Ranch {
         newServerContainer.setContainerSection(section);
         newServerContainer.setRunning(running);
         newServerContainer.setLoaded(loaded);
-        servers.put(newServerContainer.getName().replace(this.name + "_", ""), newServerContainer);
+        servers.put(newServerContainer.getName().replace(this.name + "-", ""), newServerContainer);
         return newServerContainer;
     }
 
@@ -51,9 +51,9 @@ public class Ranch {
         for (ServerContainer.Type containerType : ServerContainer.Type.values()) {
             for (String containerPatternName : ranchSection.section(containerType.toString().toLowerCase()).getKeys()) {
                 containers.stream()
-                        .filter(container -> container.getNames()[0].substring(1).startsWith(name + "_" + containerPatternName))
+                        .filter(container -> container.getNames()[0].substring(1).startsWith(name + "-" + containerPatternName))
                         .forEach(container -> {
-                                    Logger.info("Container Name -> " + Arrays.toString(container.getNames()) + " -> " + container.getNames()[0].substring(1).replace(name + "_", "") + " status " + container.getState());
+                                    Logger.info("Container Name -> " + Arrays.toString(container.getNames()) + " -> " + container.getNames()[0].substring(1).replace(name + "-", "") + " status " + container.getState());
                                     registerContainer(container.getNames()[0].substring(1), containerPatternName,
                                             containerType, ranchSection.section(containerType.toString().toLowerCase() + "." + containerPatternName),
                                             container.getState().contains("running"), true);
@@ -66,7 +66,7 @@ public class Ranch {
     public void registerLeaders() {
         Set<String> keys = ranchSection.section("leader").getKeys();
         for (String leader : keys) {
-            String name = this.name + "_" + leader;
+            String name = this.name + "-" + leader;
             if (servers.containsKey(leader) && servers.get(leader).isRunning()) continue;
 
             ServerContainer container = registerContainer(name, leader, ServerContainer.Type.LEADER, ranchSection.section("leader." + leader), false, false);

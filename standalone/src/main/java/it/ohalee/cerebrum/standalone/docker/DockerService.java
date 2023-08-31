@@ -128,10 +128,10 @@ public class DockerService {
             return CerebrumError.of(CerebrumReason.RANCH_ERROR, "No ranches registered.");
         }
 
-        String qualifiedName = ranchName + "_" + serverName;
+        String qualifiedName = ranchName + "-" + serverName;
         for (String worker : ranch.getWorkers()) {
-            if (qualifiedName.startsWith(ranch.getName() + "_" + worker)) {
-                Logger.info("Starting worker container " + ranch.getName() + "_" + serverName + "...");
+            if (qualifiedName.startsWith(ranch.getName() + "-" + worker)) {
+                Logger.info("Starting worker container " + ranch.getName() + "-" + serverName + "...");
                 ranch.registerWorker(qualifiedName, worker, ServerContainer.Type.WORKER, false, false).start();
                 return CerebrumError.of(CerebrumReason.OK, null);
             }
@@ -143,7 +143,7 @@ public class DockerService {
             return CerebrumError.of(CerebrumReason.SERVER_ERROR, "Server not registered in ranch " + ranchName + ".");
         }
 
-        Logger.info("Starting container " + ranch.getName() + "_" + serverName + "...");
+        Logger.info("Starting container " + ranch.getName() + "-" + serverName + "...");
         return container.get().start();
     }
 
@@ -158,7 +158,7 @@ public class DockerService {
             return CerebrumError.of(CerebrumReason.SERVER_ERROR, "Server not registered in ranch " + ranchName + ".");
         }
 
-        Logger.info("Stopping container " + ranchName + "_" + serverName + "...");
+        Logger.info("Stopping container " + ranchName + "-" + serverName + "...");
         return container.get().stop();
     }
 
