@@ -11,6 +11,7 @@ main:
       ports:
         - "25565" # java
         - "udp:19132" # bedrock
+      timezone: "America/New_York"
       startup: true
     auth:
       server: "/home/minecraft/primary/auth/"

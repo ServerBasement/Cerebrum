@@ -115,8 +115,11 @@ public class ServerContainer {
                     .withHostName(name)
                     .withHostConfig(hostConfig)
                     .withUser("1000:1000")
-                    .withWorkingDir("/server")
-                    .withEnv("TZ=Europe/Rome"); // TODO: 26/08/2023 Change this to a config value
+                    .withWorkingDir("/server");
+
+            String zone = containerSection.getString("timezone", null);
+            if (zone != null)
+                cmd.withEnv("TZ=" + zone);
             if (worldDirectory != null && !worldDirectory.isEmpty())
                 cmd.withEntrypoint("/bin/sh", "start.sh", name, "--docker-world", worldDirectory);
             else
