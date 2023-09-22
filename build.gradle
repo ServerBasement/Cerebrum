@@ -4,7 +4,7 @@ subprojects {
     apply plugin: 'maven-publish'
 
     group = 'it.ohalee.cerebrum'
-    project.ext.fullVersion = '0.0.1'
+    project.ext.fullVersion = '0.0.2'
     version = project.ext.fullVersion
 
     sourceCompatibility = JavaVersion.VERSION_17
