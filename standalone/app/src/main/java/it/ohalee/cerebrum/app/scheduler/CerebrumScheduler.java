@@ -38,8 +38,8 @@ public class CerebrumScheduler {
         this.scheduler.shutdown();
         try {
             if (!this.scheduler.awaitTermination(1, TimeUnit.MINUTES)) {
-                Logger.severe("Timed out waiting for the LuckPerms scheduler to terminate");
-                reportRunningTasks(thread -> thread.getName().equals("luckperms-scheduler"));
+                Logger.severe("Timed out waiting for the Cerebrum scheduler to terminate");
+                reportRunningTasks(thread -> thread.getName().equals("cerebrum-scheduler"));
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -50,8 +50,8 @@ public class CerebrumScheduler {
         this.worker.shutdown();
         try {
             if (!this.worker.awaitTermination(1, TimeUnit.MINUTES)) {
-                Logger.severe("Timed out waiting for the LuckPerms worker thread pool to terminate");
-                reportRunningTasks(thread -> thread.getName().startsWith("luckperms-worker-"));
+                Logger.severe("Timed out waiting for the Cerebrum worker thread pool to terminate");
+                reportRunningTasks(thread -> thread.getName().startsWith("cerebrum-worker-"));
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
